@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:dontocsata:mxf"
+	xmlns:mxf="urn:dontocsata:mxf" elementFormDefault="qualified">
+
+
+<!--<With provider="1">
+    <Keywords />
+    <KeywordGroups />
+    <GuideImages />
+    <People />
+    <SeriesInfos />
+    <Seasons />
+    <Programs />
+    <Affiliates />
+    <Services />
+    <ScheduleEntries />
+    <Lineups />
+  </With>
+  -->
+	<element name="MXF">
+		<complexType>
+			<sequence>
+				<element name="Assembly" type="mxf:assembly" maxOccurs="unbounded" />
+				<element name="Providers">
+					<complexType>
+						<sequence>
+							<element name="Provider" type="mxf:Provider" minOccurs="1"
+								maxOccurs="unbounded" />
+						</sequence>
+					</complexType>
+				</element>
+				<element name="With" maxOccurs="unbounded">
+					<complexType>
+						<sequence>
+							<element name="Keywords">
+								<complexType>
+									<sequence>
+										<element name="Keyword" type="mxf:keyword" minOccurs="0" maxOccurs="unbounded"/>
+									</sequence>
+								</complexType>
+							</element>
+							<element name="KeywordGroups">
+								<complexType>
+									<sequence>
+										<element name="KeywordGroup" type="mxf:KeywordGroup" minOccurs="0" maxOccurs="unbounded"/>
+									</sequence>
+								</complexType>
+							</element>
+							<element name="GuideImages">
+								<complexType>
+									<sequence>
+										<element name="GuideImage" type="mxf:GuideImage" minOccurs="0" maxOccurs="unbounded"/>
+									</sequence>
+								</complexType>
+							</element>
+							<element name="People">
+								<complexType>
+									<sequence>
+										<element name="Person" type="mxf:Person" minOccurs="0" maxOccurs="unbounded"/>
+									</sequence>
+								</complexType>
+							</element>
+							<element name="SeriesInfos">
+								<complexType>
+									<sequence>
+										<element name="SeriesInfo" type="mxf:SeriesInfo" minOccurs="0" maxOccurs="unbounded"/>
+									</sequence>
+								</complexType>
+							</element>
+							<element name="Seasons">
+								<complexType>
+									<sequence>
+										<element name="Season" type="mxf:Season" minOccurs="0" maxOccurs="unbounded"/>
+									</sequence>
+								</complexType>
+							</element>
+							<element name="Programs">
+								<complexType>
+									<sequence>
+										<element name="Program" type="mxf:Program" minOccurs="0" maxOccurs="unbounded"/>
+									</sequence>
+								</complexType>
+							</element>
+							<element name="Affiliates">
+								<complexType>
+									<sequence>
+										<element name="Affiliate" type="mxf:Affiliate" minOccurs="0" maxOccurs="unbounded"/>
+									</sequence>
+								</complexType>
+							</element>
+							<element name="Services">
+								<complexType>
+									<sequence>
+										<element name="Service" type="mxf:Service" minOccurs="0" maxOccurs="unbounded"/>
+									</sequence>
+								</complexType>
+							</element>
+							<element name="ScheduledEntries">
+								<complexType>
+									<sequence>
+										<element name="ScheduledEntry" type="mxf:ScheduleEntry" minOccurs="0" maxOccurs="unbounded"/>
+									</sequence>
+								</complexType>
+							</element>
+							<element name="Lineups">
+								<complexType>
+									<sequence>
+										<element name="Lineup" type="mxf:Lineup" minOccurs="0" maxOccurs="unbounded"/>
+									</sequence>
+								</complexType>
+							</element>
+						</sequence>					
+					<attribute name="provider" use="required" type="IDREF"/>
+					</complexType>
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<complexType name="assembly">
+		<sequence>
+			<element name="NameSpace">
+				<complexType>
+					<sequence>
+						<element name="Type">
+							<complexType>
+								<attribute name="id" />
+								<attribute name="parentFieldName" />
+							</complexType>
+						</element>
+					</sequence>
+					<attribute name="name" type="string" use="required" />
+				</complexType>
+			</element>
+		</sequence>
+		<attribute name="name" type="string" use="required" />
+		<attribute name="version" type="string" use="required" />
+		<attribute name="publicKey" type="string" use="required" />
+		<attribute name="cultureInfo" type="string" />
+	</complexType>
+
+	<complexType name="Provider">
+		<attribute name="id" />
+		<attribute name="name" />
+		<attribute name="displayName" />
+		<attribute name="copyright" />
+	</complexType>
+
+	<complexType name="keyword">
+		<attribute name="id" type="ID" />
+		<attribute name="word" />
+	</complexType>
+	
+	<element name="Role" type="mxf:RoleType" abstract="true"/>
+	
+	<element name="ActorRole" substitutionGroup="mxf:Role" type="mxf:RoleType"/>
+	<element name="DirectorRole" substitutionGroup="mxf:Role" type="mxf:RoleType"/>
+	<element name="GuestActorRole" substitutionGroup="mxf:Role" type="mxf:RoleType"/>
+	<element name="HostRole" substitutionGroup="mxf:Role" type="mxf:RoleType"/>
+	<element name="ProducerRole" substitutionGroup="mxf:Role" type="mxf:RoleType"/>
+	<element name="WriterRole" substitutionGroup="mxf:Role" type="mxf:RoleType"/>
+
+	<complexType name="RoleType">
+		<attribute name="person" type="IDREF" use="required" />
+		<attribute name="rank" type="positiveInteger" use="required" />
+	</complexType>
+
+	<complexType name="Affiliate">
+		<attribute name="name" type="string" use="optional" />
+		<attribute name="uid" type="string" use="optional" />
+		<attribute name="logoImage" type="IDREF" use="optional" />
+	</complexType>
+
+	<complexType name="Channel">
+		<attribute name="uid" type="string" use="required" />
+		<attribute name="lineup" type="string" use="optional" />
+		<attribute name="service" type="string" use="optional" />
+		<attribute name="matchName" type="string" use="optional" />
+		<attribute name="number" type="string" use="optional"
+			default="-1" />
+		<attribute name="subNumber" type="string" use="optional" />
+	</complexType>
+
+	<complexType name="GuideImage">
+		<attribute name="id" type="ID" use="required" />
+		<attribute name="imageUrl" type="anyURI" use="optional" />
+	</complexType>
+
+	<complexType name="KeywordGroup">
+		<attribute name="groupName" type="string" use="optional" />
+		<attribute name="uid" type="string" use="optional" />
+		<attribute name="keywords" type="IDREFS" use="optional" />
+	</complexType>
+
+	<complexType name="Lineup">
+		<sequence>
+			<element name="channels">
+				<complexType>
+					<sequence>
+						<element name="Channel" type="mxf:Channel" maxOccurs="unbounded"/>
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+		<attribute name="id" type="ID" use="required" />
+		<attribute name="uid" type="string" use="optional" />
+		<attribute name="name" type="string" use="optional" />
+		<attribute name="primaryProvider" type="string" use="optional" />
+	</complexType>
+
+	<complexType name="Person">
+		<attribute name="id" type="ID" use="required" />
+		<attribute name="name" type="string" use="optional" />
+		<attribute name="uid" type="string" use="optional" />
+	</complexType>
+
+	<complexType name="Program">
+		<sequence>
+			<element ref="mxf:Role"/>
+		</sequence>
+		<attribute name="id" type="ID" use="required" />
+		<attribute name="uid" type="string" use="optional" />
+		<attribute name="title" type="string" use="optional" />
+		<attribute name="episodeTitle" type="string" use="optional" />
+		<attribute name="description" type="string" use="optional" />
+		<attribute name="shortDescription" type="string" use="optional" />
+		<attribute name="language" type="string" use="required" />
+		<attribute name="year" type="positiveInteger" use="optional" />
+		<attribute name="seasonNumber" type="positiveInteger" use="optional" />
+		<attribute name="episodeNumber" type="positiveInteger" use="optional" />
+		<attribute name="originalAirdate" type="dateTime" use="optional" />
+		<attribute name="keywords" type="string" use="optional"/>
+		<attribute name="season" type="string" use="optional"/>
+		<attribute name="series" type="string" use="optional"/>
+		<attribute name="halfStars" type="nonNegativeInteger" use="optional"
+			default="0" />
+		<attribute name="logoImage" type="IDREF" use="optional" />
+		<attribute name="mpaaRating" type="nonNegativeInteger" use="optional" />
+		<attribute name="isMovie" type="boolean" use="optional" />
+		<attribute name="isMiniSeries" type="boolean" use="optional" />
+		<attribute name="isLimitedSeries" type="boolean" use="optional" />
+		<attribute name="isPaidProgramming" type="boolean" use="optional" />
+		<attribute name="isSerial" type="boolean" use="optional" />
+		<attribute name="isSeries" type="boolean" use="optional" />
+		<attribute name="isShortFilm" type="boolean" use="optional" />
+		<attribute name="isSpecial" type="boolean" use="optional" />
+		<attribute name="isSports" type="boolean" use="optional" />
+		<attribute name="isNews" type="boolean" use="optional" />
+		<attribute name="isKids" type="boolean" use="optional" />
+		<attribute name="isReality" type="boolean" use="optional" />
+		<attribute name="hasAdult" type="boolean" use="optional" />
+		<attribute name="hasBriefNudity" type="boolean" use="optional" />
+		<attribute name="hasGraphicLanguage" type="boolean" use="optional" />
+		<attribute name="hasGraphicViolence" type="boolean" use="optional" />
+		<attribute name="hasLanguage" type="boolean" use="optional" />
+		<attribute name="hasMildViolence" type="boolean" use="optional" />
+		<attribute name="hasNudity" type="boolean" use="optional" />
+		<attribute name="hasRape" type="boolean" use="optional" />
+		<attribute name="hasStrongSexualContent" type="boolean" use="optional" />
+		<attribute name="hasViolence" type="boolean" use="optional" />
+		<attribute name="guideImage" type="IDREF" use="optional" />
+	</complexType>
+
+	<complexType name="ScheduleEntry">
+		<attribute name="program" type="IDREF" use="required" />
+		<attribute name="startTime" type="dateTime" use="optional" />
+		<attribute name="duration" type="nonNegativeInteger" use="optional" default="0" />
+		<attribute name="isCC" type="boolean" use="required" />
+		<attribute name="audioFormat" type="nonNegativeInteger" use="optional"
+			default="0" />
+		<attribute name="isLive" type="boolean" use="optional" />
+		<attribute name="isLiveSports" type="boolean" use="optional" />
+		<attribute name="isTape" type="boolean" use="optional" />
+		<attribute name="isDelay" type="boolean" use="optional" />
+		<attribute name="isSubtitled" type="boolean" use="optional" />
+		<attribute name="isPremiere" type="boolean" use="optional" />
+		<attribute name="isFinale" type="boolean" use="optional" />
+		<attribute name="isInProgress" type="boolean" use="optional" />
+		<attribute name="isSap" type="boolean" use="optional" />
+		<attribute name="isBlackout" type="boolean" use="optional" />
+		<attribute name="isEnhanced" type="boolean" use="optional" />
+		<attribute name="is3D" type="boolean" use="optional" />
+		<attribute name="isLetterbox" type="boolean" use="optional" />
+		<attribute name="isHdtv" type="boolean" use="optional" />
+		<attribute name="isHdtvSimulCast" type="boolean" use="optional" />
+		<attribute name="isDvs" type="boolean" use="optional" />
+		<attribute name="part" type="nonNegativeInteger" use="optional" />
+		<attribute name="parts" type="nonNegativeInteger" use="optional" />
+	</complexType>
+
+	<complexType name="Season">
+		<attribute name="id" type="ID" use="required" />
+		<attribute name="uid" type="string" use="required" />
+		<attribute name="series" type="IDREF" use="required"/>
+		<attribute name="title" type="string" use="required"/>
+		<attribute name="studio" type="string" use="required"/>
+		<attribute name="year" type="string" use="required"/>
+		<attribute name="guideImage" type="IDREF" use="optional"/>
+	</complexType>
+	
+	<complexType name="SeriesInfo">
+		<attribute name="id" type="ID" use="required" />
+		<attribute name="uid" type="string" use="optional" />
+		<attribute name="title" type="string" use="optional"/>
+		<attribute name="shortTitle" type="string" use="optional"/>
+		<attribute name="description" type="string" use="optional"/>
+		<attribute name="shortDescription" type="string" use="optional"/>
+		<attribute name="startAirDate" type="dateTime" use="optional"/>
+		<attribute name="endAirDate" type="dateTime" use="optional"/>
+		<attribute name="guideImage" type="IDREF" use="optional"/>
+	</complexType>
+	
+	<complexType name="Service">
+		<attribute name="id" type="ID" use="required" />
+		<attribute name="uid" type="string" use="optional" />
+		<attribute name="name" type="string" use="optional"/>
+		<attribute name="callSign" type="string" use="optional"/>
+		<attribute name="affilate" type="IDREF" use="optional"/>
+		<attribute name="logoImage" type="IDREF" use="optional"/>
+	</complexType>
+
+</schema>
