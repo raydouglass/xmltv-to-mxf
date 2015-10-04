@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:dontocsata:mxf"
-	xmlns:mxf="urn:dontocsata:mxf" elementFormDefault="qualified">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:com:dontocsata:xmltv:mxf"
+	xmlns:mxf="urn:com:dontocsata:xmltv:mxf" elementFormDefault="qualified">
 
 	<element name="MXF">
 		<complexType>

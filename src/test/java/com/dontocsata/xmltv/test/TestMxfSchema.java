@@ -30,7 +30,7 @@ public class TestMxfSchema {
 
 	public static class NamespaceFilter extends XMLFilterImpl {
 
-		private String requiredNamespace = "urn:dontocsata:mxf";
+		private String requiredNamespace = "urn:com:dontocsata:xmltv:mxf";
 
 		public NamespaceFilter(XMLReader parent) {
 			super(parent);
