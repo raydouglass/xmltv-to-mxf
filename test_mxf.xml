@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MXF xmlns:sql="urn:schemas-microsoft-com:XML-sql" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Assembly name="mcepg" version="6.0.6000.0" cultureInfo="" publicKey="0024000004800000940000000602000000240000525341310004000001000100B5FC90E7027F67871E773A8FDE8938C81DD402BA65B9201D60593E96C492651E889CC13F1415EBB53FAC1131AE0BD333C5EE6021672D9718EA31A8AEBD0DA0072F25D87DBA6FC90FFD598ED4DA35E44C398C454307E8E33B8426143DAEC9F596836F97C8F74750E5975C64E2189F45DEF46B2A2B1247ADC3652BF5C308055DA9">
+    <NameSpace name="Microsoft.MediaCenter.Guide">
+      <Type name="Lineup" />
+      <Type name="Channel" parentFieldName="lineup" />
+      <Type name="Service" />
+      <Type name="ScheduleEntry" groupName="ScheduleEntries" />
+      <Type name="Program" />
+      <Type name="Keyword" />
+      <Type name="KeywordGroup" />
+      <Type name="Person" groupName="People" />
+      <Type name="ActorRole" parentFieldName="program" />
+      <Type name="DirectorRole" parentFieldName="program" />
+      <Type name="WriterRole" parentFieldName="program" />
+      <Type name="HostRole" parentFieldName="program" />
+      <Type name="GuestActorRole" parentFieldName="program" />
+      <Type name="ProducerRole" parentFieldName="program" />
+      <Type name="GuideImage" />
+      <Type name="Affiliate" />
+      <Type name="SeriesInfo" />
+      <Type name="Season" />
+    </NameSpace>
+  </Assembly>
+  <Assembly name="mcstore" version="6.0.6000.0" cultureInfo="" publicKey="0024000004800000940000000602000000240000525341310004000001000100B5FC90E7027F67871E773A8FDE8938C81DD402BA65B9201D60593E96C492651E889CC13F1415EBB53FAC1131AE0BD333C5EE6021672D9718EA31A8AEBD0DA0072F25D87DBA6FC90FFD598ED4DA35E44C398C454307E8E33B8426143DAEC9F596836F97C8F74750E5975C64E2189F45DEF46B2A2B1247ADC3652BF5C308055DA9">
+    <NameSpace name="Microsoft.MediaCenter.Store">
+      <Type name="Provider" />
+      <Type name="UId" parentFieldName="target" />
+    </NameSpace>
+  </Assembly>
+  <Providers>
+    <Provider id="provider1" name="GuideListingsInc" displayName="Guide Listings Inc" copyright="© 2008 Microsoft Corporation. All Rights Reserved." />
+  </Providers>
+  <With provider="provider1">
+    <Keywords>
+      <Keyword id="k1"   word="General" />
+      <Keyword id="k100" word="All" />
+      <Keyword id="k101" word="Action/Adventure" />
+      <Keyword id="k102" word="Comedy" />
+      <Keyword id="k103" word="Documentary/Bio" />
+      <Keyword id="k104" word="Drama" />
+      <Keyword id="k105" word="Educational" />
+      <Keyword id="k106" word="Family/Children" />
+      <Keyword id="k107" word="Movies" />
+      <Keyword id="k108" word="Music" />
+      <Keyword id="k109" word="News" />
+      <Keyword id="k110" word="Sci-Fi/Fantasy" />
+      <Keyword id="k111" word="Soap" />
+      <Keyword id="k112" word="Sports" />
+      <Keyword id="k113" word="Other" />
+
+      <Keyword id="k2"   word="Educational" />
+      <Keyword id="k200" word="All" />
+      <Keyword id="k201" word="Arts" />
+      <Keyword id="k202" word="Biography" />
+      <Keyword id="k203" word="Documentary" />
+      <Keyword id="k204" word="How-to" />
+      <Keyword id="k205" word="Science" />
+      <Keyword id="k206" word="Other" />
+    </Keywords>
+    <KeywordGroups>
+      <KeywordGroup uid="!KeywordGroup!k1" groupName="k1" keywords="k100,k101,k102,k103,k104,k105,k106,k107,k108,k109,k110,k111,k112,k113" />
+      <KeywordGroup uid="!KeywordGroup!k2" groupName="k2" keywords="k200,k201,k202,k203,k204,k205,k206" />
+    </KeywordGroups>
+    <GuideImages>
+      <GuideImage id="i1" uid="!Image!JohnnyBoy" imageUrl="http://www.fakeurl.com/images/image1.jpg" />
+      <GuideImage id="i2" uid="!Image!XYZNetworkLogo" imageUrl="http://www.fakeurl.com/images/image2.jpg" />
+    </GuideImages>
+    <People>
+      <Person id="p1" name="Spring Chick" uid="!Person!Spring Chick" />
+      <Person id="p2" name="Bruce Abbott" uid="!Person!Bruce Abbott" />
+      <Person id="p3" name="John Producer" uid="!Person!John Producer" />
+      <Person id="p4" name="David Director" uid="!Person!David Director" />
+      <Person id="p5" name="Jimmy Writer" uid="!Person!Jimmy Writer" />
+      <Person id="p6" name="Terry Talented" uid="!Person!Terry Talented" />
+    </People>
+    <SeriesInfos>
+      <SeriesInfo id="si1" uid="!Series!CodeWars" title="Code Wars" shortTitle="Code Wars" description="Geeky children ponder mysteries of the universe." shortDescription="Kids ponder universal mysteries." startAirdate="2000-01-01T00:00:00" endAirdate="1900-01-01T00:00:00" guideImage="i1" />
+    </SeriesInfos>
+    <Seasons>
+      <Season id="sn1" uid="!Season!164959780" series="si1" title="Code Wars: Season 01" year="2000" />
+    </Seasons>
+    <Programs>
+      <Program id="1" uid="!Program!1" title="Code Wars" description="The kids ponder whether 1 was unfairly declared non-prime." shortDescription="Should 1 be prime?" episodeTitle="Divisible by one and itself" language="en-us" episodeNumber="1" originalAirdate="2001-09-10T00:00:00" keywords="k1,k2,k105,k106,k205" series="si1" isSeries="1" isKids="1">
+        <ActorRole person="p1" rank="1" />
+        <ActorRole person="p6" rank="2" />
+      </Program>
+      <Program id="2" uid="!Program!2" title="Code Wars" description="The kids drink tea all day long."  episodeTitle="Cup of Tea" language="en-us" episodeNumber="1" originalAirdate="2001-09-10T00:00:00" keywords="k1,k2,k105,k106,k205" series="si1" isSeries="1" isKids="1">
+        <ActorRole person="p1" rank="1" />
+        <ActorRole person="p6" rank="2" />
+        <GuestActorRole person="p2" rank="1" />
+        <DirectorRole person="p4" rank="1" />
+        <ProducerRole person="p3" rank="1" />
+        <WriterRole person="p5" rank="1" />
+        <WriterRole person="p6" rank="2" />
+      </Program>
+      <Program id="3" uid="!Program!3" title="Spit the dummy" description="Jim-Bob starts a business but throws a wobbly." episodeTitle="The business" language="en-us" episodeNumber="167" originalAirdate="1985-11-22T00:00:00" keywords="k1,k105,k2,k204" >
+        <ActorRole person="p1" rank="1" />
+        <ActorRole person="p6" rank="2" />
+        <GuestActorRole person="p2" rank="1" />
+        <DirectorRole person="p4" rank="1" />
+        <ProducerRole person="p3" rank="1" />
+        <WriterRole person="p5" rank="1" />
+        <WriterRole person="p6" rank="2" />
+      </Program>
+    </Programs>
+    <Affiliates>
+      <Affiliate name="ABC Affiliate" uid="!Affiliate!ABC Affiliate" logoImage="i2" />
+    </Affiliates>
+    <Services>
+      <Service id="s1" uid="!Service!EducationChannel" name="Education Channel" callSign="EDUC"  />
+      <Service id="s2" uid="!Service!Spike" name="Spike TV" callSign="SPIKE" affiliate="!Affiliate!ABC Affiliate" />
+    </Services>
+    <ScheduleEntries service="s1">
+      <ScheduleEntry program="1" startTime="2008-09-27T00:00:00" duration="1800" isCC="1" isStereo="1" />
+      <ScheduleEntry program="2" duration="1800" isCC="1" audioFormat="2" />
+      <ScheduleEntry program="2" duration="1800" isCC="1" audioFormat="2" />
+      <ScheduleEntry program="1" duration="1800" isCC="1" audioFormat="2" />
+      <ScheduleEntry program="2" duration="7200" />
+      <ScheduleEntry program="3" duration="7200" audioFormat="2" />
+    </ScheduleEntries>
+    <ScheduleEntries service="s2">
+      <ScheduleEntry program="1" startTime="2008-09-27T00:00:00" duration="1800" />
+      <ScheduleEntry program="1" duration="1800" isCC="1" />
+      <ScheduleEntry program="1" duration="1800" isCC="1" />
+      <ScheduleEntry program="1" duration="1800" isCC="1" />
+      <ScheduleEntry program="1" duration="1800" />
+      <ScheduleEntry program="1" duration="1800" />
+    </ScheduleEntries>
+
+    <Lineups>
+      <Lineup id="l1" uid="!Lineup!OuterLimits" name="OuterLimits, Kansas" primaryProvider="!MCLineup!MainLineup" >
+        <channels>
+          <Channel uid="!Channel!OuterLimits!1" lineup="l1" service="s1" number="1" />
+          <Channel uid="!Channel!OuterLimits!2" lineup="l1" service="s2" number="2" />
+        </channels>
+      </Lineup>
+    </Lineups>
+  </With>
+</MXF>

@@ -2,21 +2,6 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:dontocsata:mxf"
 	xmlns:mxf="urn:dontocsata:mxf" elementFormDefault="qualified">
 
-
-<!--<With provider="1">
-    <Keywords />
-    <KeywordGroups />
-    <GuideImages />
-    <People />
-    <SeriesInfos />
-    <Seasons />
-    <Programs />
-    <Affiliates />
-    <Services />
-    <ScheduleEntries />
-    <Lineups />
-  </With>
-  -->
 	<element name="MXF">
 		<complexType>
 			<sequence>
@@ -35,82 +20,94 @@
 							<element name="Keywords">
 								<complexType>
 									<sequence>
-										<element name="Keyword" type="mxf:keyword" minOccurs="0" maxOccurs="unbounded"/>
+										<element name="Keyword" type="mxf:keyword" minOccurs="0"
+											maxOccurs="unbounded" />
 									</sequence>
 								</complexType>
 							</element>
 							<element name="KeywordGroups">
 								<complexType>
 									<sequence>
-										<element name="KeywordGroup" type="mxf:KeywordGroup" minOccurs="0" maxOccurs="unbounded"/>
+										<element name="KeywordGroup" type="mxf:KeywordGroup"
+											minOccurs="0" maxOccurs="unbounded" />
 									</sequence>
 								</complexType>
 							</element>
 							<element name="GuideImages">
 								<complexType>
 									<sequence>
-										<element name="GuideImage" type="mxf:GuideImage" minOccurs="0" maxOccurs="unbounded"/>
+										<element name="GuideImage" type="mxf:GuideImage"
+											minOccurs="0" maxOccurs="unbounded" />
 									</sequence>
 								</complexType>
 							</element>
 							<element name="People">
 								<complexType>
 									<sequence>
-										<element name="Person" type="mxf:Person" minOccurs="0" maxOccurs="unbounded"/>
+										<element name="Person" type="mxf:Person" minOccurs="0"
+											maxOccurs="unbounded" />
 									</sequence>
 								</complexType>
 							</element>
 							<element name="SeriesInfos">
 								<complexType>
 									<sequence>
-										<element name="SeriesInfo" type="mxf:SeriesInfo" minOccurs="0" maxOccurs="unbounded"/>
+										<element name="SeriesInfo" type="mxf:SeriesInfo"
+											minOccurs="0" maxOccurs="unbounded" />
 									</sequence>
 								</complexType>
 							</element>
 							<element name="Seasons">
 								<complexType>
 									<sequence>
-										<element name="Season" type="mxf:Season" minOccurs="0" maxOccurs="unbounded"/>
+										<element name="Season" type="mxf:Season" minOccurs="0"
+											maxOccurs="unbounded" />
 									</sequence>
 								</complexType>
 							</element>
 							<element name="Programs">
 								<complexType>
 									<sequence>
-										<element name="Program" type="mxf:Program" minOccurs="0" maxOccurs="unbounded"/>
+										<element name="Program" type="mxf:Program" minOccurs="0"
+											maxOccurs="unbounded" />
 									</sequence>
 								</complexType>
 							</element>
 							<element name="Affiliates">
 								<complexType>
 									<sequence>
-										<element name="Affiliate" type="mxf:Affiliate" minOccurs="0" maxOccurs="unbounded"/>
+										<element name="Affiliate" type="mxf:Affiliate"
+											minOccurs="0" maxOccurs="unbounded" />
 									</sequence>
 								</complexType>
 							</element>
 							<element name="Services">
 								<complexType>
 									<sequence>
-										<element name="Service" type="mxf:Service" minOccurs="0" maxOccurs="unbounded"/>
+										<element name="Service" type="mxf:Service" minOccurs="0"
+											maxOccurs="unbounded" />
 									</sequence>
 								</complexType>
 							</element>
-							<element name="ScheduledEntries">
+							<element name="ScheduleEntries" minOccurs="0" maxOccurs="unbounded">
 								<complexType>
 									<sequence>
-										<element name="ScheduledEntry" type="mxf:ScheduleEntry" minOccurs="0" maxOccurs="unbounded"/>
+										<element name="ScheduleEntry" type="mxf:ScheduleEntry"
+											minOccurs="0" maxOccurs="unbounded" />
 									</sequence>
+									<attribute name="service" type="IDREF" use="required" />
 								</complexType>
 							</element>
 							<element name="Lineups">
 								<complexType>
 									<sequence>
-										<element name="Lineup" type="mxf:Lineup" minOccurs="0" maxOccurs="unbounded"/>
+										<element name="Lineup" type="mxf:Lineup" minOccurs="0"
+											maxOccurs="unbounded" />
 									</sequence>
 								</complexType>
 							</element>
-						</sequence>					
-					<attribute name="provider" use="required" type="IDREF"/>
+						</sequence>
+						<attribute name="provider" use="required" type="IDREF" />
 					</complexType>
 				</element>
 			</sequence>
@@ -122,9 +119,10 @@
 			<element name="NameSpace">
 				<complexType>
 					<sequence>
-						<element name="Type">
+						<element name="Type" minOccurs="0" maxOccurs="unbounded">
 							<complexType>
-								<attribute name="id" />
+								<attribute name="name" />
+								<attribute name="groupName" />
 								<attribute name="parentFieldName" />
 							</complexType>
 						</element>
@@ -140,25 +138,26 @@
 	</complexType>
 
 	<complexType name="Provider">
-		<attribute name="id" />
-		<attribute name="name" />
-		<attribute name="displayName" />
-		<attribute name="copyright" />
+		<attribute name="id" type="ID" use="required" />
+		<attribute name="name" type="string" use="optional" />
+		<attribute name="displayName" type="string" use="optional" />
+		<attribute name="copyright" type="string" use="optional" />
 	</complexType>
 
 	<complexType name="keyword">
 		<attribute name="id" type="ID" />
 		<attribute name="word" />
 	</complexType>
-	
-	<element name="Role" type="mxf:RoleType" abstract="true"/>
-	
-	<element name="ActorRole" substitutionGroup="mxf:Role" type="mxf:RoleType"/>
-	<element name="DirectorRole" substitutionGroup="mxf:Role" type="mxf:RoleType"/>
-	<element name="GuestActorRole" substitutionGroup="mxf:Role" type="mxf:RoleType"/>
-	<element name="HostRole" substitutionGroup="mxf:Role" type="mxf:RoleType"/>
-	<element name="ProducerRole" substitutionGroup="mxf:Role" type="mxf:RoleType"/>
-	<element name="WriterRole" substitutionGroup="mxf:Role" type="mxf:RoleType"/>
+
+	<element name="Role" type="mxf:RoleType" abstract="true" />
+
+	<element name="ActorRole" substitutionGroup="mxf:Role" type="mxf:RoleType" />
+	<element name="DirectorRole" substitutionGroup="mxf:Role" type="mxf:RoleType" />
+	<element name="GuestActorRole" substitutionGroup="mxf:Role"
+		type="mxf:RoleType" />
+	<element name="HostRole" substitutionGroup="mxf:Role" type="mxf:RoleType" />
+	<element name="ProducerRole" substitutionGroup="mxf:Role" type="mxf:RoleType" />
+	<element name="WriterRole" substitutionGroup="mxf:Role" type="mxf:RoleType" />
 
 	<complexType name="RoleType">
 		<attribute name="person" type="IDREF" use="required" />
@@ -183,13 +182,14 @@
 
 	<complexType name="GuideImage">
 		<attribute name="id" type="ID" use="required" />
+		<attribute name="uid" type="string" use="optional" /> <!-- Not in spec, but is in samples -->
 		<attribute name="imageUrl" type="anyURI" use="optional" />
 	</complexType>
 
 	<complexType name="KeywordGroup">
 		<attribute name="groupName" type="string" use="optional" />
 		<attribute name="uid" type="string" use="optional" />
-		<attribute name="keywords" type="IDREFS" use="optional" />
+		<attribute name="keywords" type="string" use="optional" />
 	</complexType>
 
 	<complexType name="Lineup">
@@ -197,7 +197,7 @@
 			<element name="channels">
 				<complexType>
 					<sequence>
-						<element name="Channel" type="mxf:Channel" maxOccurs="unbounded"/>
+						<element name="Channel" type="mxf:Channel" maxOccurs="unbounded" />
 					</sequence>
 				</complexType>
 			</element>
@@ -216,9 +216,10 @@
 
 	<complexType name="Program">
 		<sequence>
-			<element ref="mxf:Role"/>
+			<element ref="mxf:Role" minOccurs="0" maxOccurs="unbounded" />
 		</sequence>
-		<attribute name="id" type="ID" use="required" />
+		<attribute name="id" type="nonNegativeInteger" use="required" /> <!-- This is a xs:ID, but MXF spec requires using an integer, which is not 
+			allowed as an ID -->
 		<attribute name="uid" type="string" use="optional" />
 		<attribute name="title" type="string" use="optional" />
 		<attribute name="episodeTitle" type="string" use="optional" />
@@ -229,9 +230,9 @@
 		<attribute name="seasonNumber" type="positiveInteger" use="optional" />
 		<attribute name="episodeNumber" type="positiveInteger" use="optional" />
 		<attribute name="originalAirdate" type="dateTime" use="optional" />
-		<attribute name="keywords" type="string" use="optional"/>
-		<attribute name="season" type="string" use="optional"/>
-		<attribute name="series" type="string" use="optional"/>
+		<attribute name="keywords" type="string" use="optional" />
+		<attribute name="season" type="string" use="optional" />
+		<attribute name="series" type="string" use="optional" />
 		<attribute name="halfStars" type="nonNegativeInteger" use="optional"
 			default="0" />
 		<attribute name="logoImage" type="IDREF" use="optional" />
@@ -262,10 +263,11 @@
 	</complexType>
 
 	<complexType name="ScheduleEntry">
-		<attribute name="program" type="IDREF" use="required" />
+		<attribute name="program" type="string" use="required" />
 		<attribute name="startTime" type="dateTime" use="optional" />
-		<attribute name="duration" type="nonNegativeInteger" use="optional" default="0" />
-		<attribute name="isCC" type="boolean" use="required" />
+		<attribute name="duration" type="nonNegativeInteger" use="optional"
+			default="0" />
+		<attribute name="isCC" type="boolean" use="optional" />
 		<attribute name="audioFormat" type="nonNegativeInteger" use="optional"
 			default="0" />
 		<attribute name="isLive" type="boolean" use="optional" />
@@ -284,39 +286,40 @@
 		<attribute name="isHdtv" type="boolean" use="optional" />
 		<attribute name="isHdtvSimulCast" type="boolean" use="optional" />
 		<attribute name="isDvs" type="boolean" use="optional" />
+		<attribute name="isStereo" type="boolean" use="optional" /> <!-- Not in spec, but in samples -->
 		<attribute name="part" type="nonNegativeInteger" use="optional" />
 		<attribute name="parts" type="nonNegativeInteger" use="optional" />
 	</complexType>
 
 	<complexType name="Season">
 		<attribute name="id" type="ID" use="required" />
-		<attribute name="uid" type="string" use="required" />
-		<attribute name="series" type="IDREF" use="required"/>
-		<attribute name="title" type="string" use="required"/>
-		<attribute name="studio" type="string" use="required"/>
-		<attribute name="year" type="string" use="required"/>
-		<attribute name="guideImage" type="IDREF" use="optional"/>
+		<attribute name="uid" type="string" use="optional" />
+		<attribute name="series" type="IDREF" use="optional" />
+		<attribute name="title" type="string" use="optional" />
+		<attribute name="studio" type="string" use="optional" />
+		<attribute name="year" type="string" use="optional" />
+		<attribute name="guideImage" type="IDREF" use="optional" />
 	</complexType>
-	
+
 	<complexType name="SeriesInfo">
 		<attribute name="id" type="ID" use="required" />
 		<attribute name="uid" type="string" use="optional" />
-		<attribute name="title" type="string" use="optional"/>
-		<attribute name="shortTitle" type="string" use="optional"/>
-		<attribute name="description" type="string" use="optional"/>
-		<attribute name="shortDescription" type="string" use="optional"/>
-		<attribute name="startAirDate" type="dateTime" use="optional"/>
-		<attribute name="endAirDate" type="dateTime" use="optional"/>
-		<attribute name="guideImage" type="IDREF" use="optional"/>
+		<attribute name="title" type="string" use="optional" />
+		<attribute name="shortTitle" type="string" use="optional" />
+		<attribute name="description" type="string" use="optional" />
+		<attribute name="shortDescription" type="string" use="optional" />
+		<attribute name="startAirdate" type="dateTime" use="optional" />
+		<attribute name="endAirdate" type="dateTime" use="optional" />
+		<attribute name="guideImage" type="IDREF" use="optional" />
 	</complexType>
-	
+
 	<complexType name="Service">
 		<attribute name="id" type="ID" use="required" />
 		<attribute name="uid" type="string" use="optional" />
-		<attribute name="name" type="string" use="optional"/>
-		<attribute name="callSign" type="string" use="optional"/>
-		<attribute name="affilate" type="IDREF" use="optional"/>
-		<attribute name="logoImage" type="IDREF" use="optional"/>
+		<attribute name="name" type="string" use="optional" />
+		<attribute name="callSign" type="string" use="optional" />
+		<attribute name="affiliate" type="string" use="optional" />
+		<attribute name="logoImage" type="IDREF" use="optional" />
 	</complexType>
 
 </schema>
