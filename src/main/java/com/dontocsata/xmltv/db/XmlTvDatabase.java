@@ -22,7 +22,7 @@ public class XmlTvDatabase {
 			stmt.executeUpdate(
 					"create table if not exists channel(id text primary key, displayNames text, icon text, url text)");
 			stmt.executeUpdate(
-					"create table if not exists program (channelId text, title text, subTitle text, start text, stop text, description text, previouslyShown boolean, previouslyShownDate text, date text, ddProgramId text, xmlTvProgramId text, onScreenProgramId text, credits text, categories text, keywords text)");
+					"create table if not exists program (channelId text, title text, subTitle text, start text, stop text, description text, previouslyShown boolean, previouslyShownDate text, date text, ddProgramId text, xmlTvProgramId text, onScreenProgramId text, credits text, categories text, keywords text, videoAspect text, videoQuality text)");
 		}
 	}
 
@@ -43,7 +43,7 @@ public class XmlTvDatabase {
 
 	public void write(Collection<XmlTvProgram> programs) throws SQLException {
 		try (PreparedStatement stmt = conn.prepareStatement(
-				"insert into program (channelId, title, subTitle, start, stop, description, previouslyShown, previouslyShownDate, date, ddProgramId, xmlTvProgramId, onScreenProgramId, credits, categories, keywords) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+				"insert into program (channelId, title, subTitle, start, stop, description, previouslyShown, previouslyShownDate, date, ddProgramId, xmlTvProgramId, onScreenProgramId, credits, categories, keywords, videoAspect, videoQuality) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
 			for (XmlTvProgram program : programs) {
 				stmt.setString(1, program.getChannelId());
 				stmt.setString(2, program.getTitle());
@@ -60,6 +60,8 @@ public class XmlTvDatabase {
 				stmt.setString(13, program.getCredits().toString());
 				stmt.setString(14, program.getCategories().toString());
 				stmt.setString(15, program.getKeywords().toString());
+				stmt.setString(16, program.getVideoAspect());
+				stmt.setString(17, program.getVideoQuality());
 				stmt.addBatch();
 			}
 			stmt.executeBatch();
@@ -71,6 +73,7 @@ public class XmlTvDatabase {
 			stmt.executeUpdate("create index if not exists channelId_idx on program (channelId)");
 			stmt.executeUpdate("create index if not exists title_idx on program (title)");
 			stmt.executeUpdate("create index if not exists subTitle_idx on program (subTitle)");
+			stmt.executeUpdate("create index if not exists ddProgramId_idx on program (ddProgramId)");
 			stmt.executeUpdate("create index if not exists start_idx on program (start)");
 		}
 	}

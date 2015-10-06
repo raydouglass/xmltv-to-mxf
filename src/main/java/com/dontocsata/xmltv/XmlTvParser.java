@@ -46,7 +46,7 @@ public class XmlTvParser {
 
 		// File xmlTvFile = new File("test_xmltv.xml");
 		File xmlTvFile = new File("/Users/ray.douglass/Downloads/xmltv_2015_10_04.xml");
-		XmlTv xmlTv = new XmlTv(xmlTvFile).parse();
+		XmlTv xmlTv = new XmlTv(xmlTvFile, new File("database.db")).parse();
 
 		System.out.println("Creating services");
 		// Convert XmlTvChannel to Service
@@ -200,6 +200,12 @@ public class XmlTvParser {
 					entry.setStartTime(dtf.newXMLGregorianCalendar(
 							GregorianCalendar.from(pp.xmlTvProgram.getStart().withZoneSameInstant(ZoneId.of("UTC")))));
 					first = false;
+				}
+				if (pp.xmlTvProgram.isPreviouslyShown()) {
+					entry.setIsRepeat(true);
+				}
+				if (pp.xmlTvProgram.isHDTV()) {
+					entry.setIsHdtv(true);
 				}
 				entries.getScheduleEntry().add(entry);
 			}

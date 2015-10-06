@@ -172,6 +172,9 @@
     <category lang="en">Series</category>
     <episode-num system="dd_progid">EP00004422.1359</episode-num>
     <episode-num system="onscreen">8937</episode-num>
+    <video>
+    	<quality>HDTV</quality>
+    </video>
     <audio>
       <stereo>stereo</stereo>
     </audio>

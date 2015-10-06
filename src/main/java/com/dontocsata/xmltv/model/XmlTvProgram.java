@@ -28,6 +28,9 @@ public class XmlTvProgram {
 	private List<String> categories;
 	private List<String> keywords;
 
+	private String videoAspect;
+	private String videoQuality;
+
 	private String uid;
 
 	public String getUid() {
@@ -156,13 +159,34 @@ public class XmlTvProgram {
 		return keywords;
 	}
 
+	public String getVideoAspect() {
+		return videoAspect;
+	}
+
+	public void setVideoAspect(String videoAspect) {
+		this.videoAspect = videoAspect;
+	}
+
+	public String getVideoQuality() {
+		return videoQuality;
+	}
+
+	public void setVideoQuality(String videoQuality) {
+		this.videoQuality = videoQuality;
+	}
+
+	public boolean isHDTV() {
+		return videoQuality != null && "HDTV".equals(videoQuality);
+	}
+
 	@Override
 	public String toString() {
-		return "Program [channelId=" + channelId + ", start=" + start + ", stop=" + stop + ", title=" + title
+		return "XmlTvProgram [channelId=" + channelId + ", start=" + start + ", stop=" + stop + ", title=" + title
 				+ ", subTitle=" + subTitle + ", description=" + description + ", previouslyShown=" + previouslyShown
 				+ ", previouslyShownDate=" + previouslyShownDate + ", date=" + date + ", ddProgramId=" + ddProgramId
 				+ ", xmlTvProgramId=" + xmlTvProgramId + ", onScreenProgramId=" + onScreenProgramId + ", credits="
-				+ credits + ", categories=" + categories + ", keywords=" + keywords + "]";
+				+ credits + ", categories=" + categories + ", keywords=" + keywords + ", videoAspect=" + videoAspect
+				+ ", videoQuality=" + videoQuality + "]";
 	}
 
 }
