@@ -38,24 +38,27 @@ public class XmlTv {
 
 	private Collection<XmlTvProgram> tempPrograms = new ArrayList<>();
 
-	public XmlTv(File xmlTvFile) throws IOException, SQLException {
+	public XmlTv(File xmlTvFile) throws IOException {
 		this.xmlTvFile = xmlTvFile;
 		if (!this.xmlTvFile.exists()) {
 			throw new FileNotFoundException(this.xmlTvFile.toString());
 		}
-		File f = File.createTempFile("xmltv", "db");
-		log.debug("Temp database file: {}", f.getAbsolutePath());
-		f.deleteOnExit();
-		database = new XmlTvDatabase(f);
+	}
+
+	public XmlTv(File xmlTvFile, File dbFile) throws IOException, SQLException {
+		this(xmlTvFile);
+		database = new XmlTvDatabase(dbFile);
 	}
 
 	public Consumer<XmlTvChannel> getChannelConsumer() {
 		return c -> {
 			channels.put(c.getId(), c);
-			try {
-				database.write(c);
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
+			if (database != null) {
+				try {
+					database.write(c);
+				} catch (SQLException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		};
 	}
@@ -63,14 +66,16 @@ public class XmlTv {
 	public Consumer<XmlTvProgram> getProgramConsumer() {
 		return p -> {
 			programs.add(p);
-			tempPrograms.add(p);
-			if (tempPrograms.size() >= 10000) {
-				try {
-					database.write(tempPrograms);
-				} catch (SQLException e) {
-					throw new RuntimeException(e);
+			if (database != null) {
+				tempPrograms.add(p);
+				if (tempPrograms.size() >= 10000) {
+					try {
+						database.write(tempPrograms);
+					} catch (SQLException e) {
+						throw new RuntimeException(e);
+					}
+					tempPrograms.clear();
 				}
-				tempPrograms.clear();
 			}
 		};
 	}
@@ -90,11 +95,13 @@ public class XmlTv {
 			XMLReader xmlReader = parser.getXMLReader();
 			xmlReader.setContentHandler(new MainHandler(xmlReader, getChannelConsumer(), getProgramConsumer()));
 			xmlReader.parse(new InputSource(new FileInputStream(xmlTvFile)));
-			if (!tempPrograms.isEmpty()) {
-				database.write(tempPrograms);
+			if (database != null) {
+				if (!tempPrograms.isEmpty()) {
+					database.write(tempPrograms);
+				}
+				database.createIndex();
+				database.close();
 			}
-			database.createIndex();
-			database.close();
 		} catch (IOException | SQLException | SAXException | ParserConfigurationException e) {
 			throw new XmlTvParseException(e);
 		}

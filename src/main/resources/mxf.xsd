@@ -229,8 +229,8 @@
 		<attribute name="shortDescription" type="string" use="optional" />
 		<attribute name="language" type="string" use="optional" />
 		<attribute name="year" type="positiveInteger" use="optional" />
-		<attribute name="seasonNumber" type="positiveInteger" use="optional" />
-		<attribute name="episodeNumber" type="positiveInteger" use="optional" />
+		<attribute name="seasonNumber" type="nonNegativeInteger" use="optional" />
+		<attribute name="episodeNumber" type="nonNegativeInteger" use="optional" />
 		<attribute name="originalAirdate" type="dateTime" use="optional" />
 		<attribute name="keywords" type="string" use="optional" />
 		<attribute name="season" type="IDREF" use="optional" />

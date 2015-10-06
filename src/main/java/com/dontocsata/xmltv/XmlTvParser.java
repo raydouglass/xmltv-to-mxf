@@ -1,8 +1,8 @@
 package com.dontocsata.xmltv;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.FileWriter;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.ZoneId;
@@ -19,11 +19,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.jdom2.Document;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
-
 import com.dontocsata.xmltv.model.DDProgramId;
 import com.dontocsata.xmltv.model.DDProgramIdType;
 import com.dontocsata.xmltv.model.XmlTvChannel;
@@ -35,7 +30,6 @@ import com.dontocsata.xmltv.mxf.Lineup.Channels;
 import com.dontocsata.xmltv.mxf.MXF;
 import com.dontocsata.xmltv.mxf.MXF.With.ScheduleEntries;
 import com.dontocsata.xmltv.mxf.MxfGenerator;
-import com.dontocsata.xmltv.mxf.MxfValidator;
 import com.dontocsata.xmltv.mxf.Program;
 import com.dontocsata.xmltv.mxf.ScheduleEntry;
 import com.dontocsata.xmltv.mxf.Season;
@@ -50,9 +44,11 @@ public class XmlTvParser {
 
 		DatatypeFactory dtf = DatatypeFactory.newInstance();
 
-		File xmlTvFile = new File("test_xmltv.xml");
+		// File xmlTvFile = new File("test_xmltv.xml");
+		File xmlTvFile = new File("/Users/ray.douglass/Downloads/xmltv_2015_10_04.xml");
 		XmlTv xmlTv = new XmlTv(xmlTvFile).parse();
 
+		System.out.println("Creating services");
 		// Convert XmlTvChannel to Service
 		// XmlTvChannel ID=>Service
 		Map<String, Service> services = new TreeMap<>();
@@ -66,7 +62,7 @@ public class XmlTvParser {
 			// affiliates
 			services.put(c.getId(), service);
 		}
-
+		System.out.println("Creatring lineup");
 		Lineup lineup = new Lineup();
 		lineup.setChannels(new Channels());
 		lineup.setId("l1");
@@ -83,6 +79,7 @@ public class XmlTvParser {
 
 		MxfGenerator generator = new MxfGenerator();
 
+		System.out.println("Generating basic MXF");
 		MXF mxf = generator.createBasicMXF();
 		MXF.With with = mxf.getWith().get(0);
 		MXF.With.Lineups lineups = new MXF.With.Lineups();
@@ -93,6 +90,8 @@ public class XmlTvParser {
 		mxfServices.getService().addAll(services.values());
 		with.getKeywordsOrKeywordGroupsOrGuideImages().add(mxfServices);
 
+		System.out.println("Beginning program parsing");
+		int count = 0;
 		// Create Series & Programs
 		int seriesIdSequence = 1;
 		int seasonIdSequence = 1;
@@ -105,6 +104,9 @@ public class XmlTvParser {
 				.newSortedSetMultimap(new TreeMap<String, Collection<ProgramPair>>(), () -> new TreeSet<ProgramPair>(
 						(o1, o2) -> o1.xmlTvProgram.getStart().compareTo(o2.xmlTvProgram.getStart())));
 		for (XmlTvProgram p : xmlTv.getPrograms()) {
+			if (++count % 25000 == 0) {
+				System.out.println("Completed " + count + " programs");
+			}
 			Program prog = idProgramMap.get(p.getUid());
 			if (prog == null) {
 				SeriesInfo si = null;
@@ -180,7 +182,10 @@ public class XmlTvParser {
 
 		with.getKeywordsOrKeywordGroupsOrGuideImages().add(withPrograms);
 
+		System.out.println("Scheduling programs");
+		count = 0;
 		for (XmlTvChannel c : xmlTv.getChannels().values()) {
+			System.out.println("Scheduling " + c.getId() + " (" + ++count + "/" + xmlTv.getChannels().size() + ")");
 			String key = c.getId();
 			Collection<ProgramPair> programs = channelProgramMap.get(key);
 			ScheduleEntries entries = new ScheduleEntries();
@@ -203,15 +208,17 @@ public class XmlTvParser {
 
 		JAXBContext jaxb = generator.getJaxbContext();
 		Marshaller marshaller = jaxb.createMarshaller();
-		StringWriter sw = new StringWriter();
-		marshaller.marshal(mxf, sw);
-		SAXBuilder sb = new SAXBuilder();
-		Document document = sb.build(new StringReader(sw.toString()));
+		// StringWriter sw = new StringWriter();
+		try (BufferedWriter out = new BufferedWriter(new FileWriter("mxf.xml"))) {
+			marshaller.marshal(mxf, out);
+		}
+		// SAXBuilder sb = new SAXBuilder();
+		// Document document = sb.build(new StringReader(sw.toString()));
+		//
+		// XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
+		// xmlOut.output(document, System.out);
 
-		XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
-		xmlOut.output(document, System.out);
-
-		new MxfValidator().validate(document);
+		// new MxfValidator().validate(document);
 	}
 
 	private static class ProgramPair {
