@@ -233,8 +233,8 @@
 		<attribute name="episodeNumber" type="positiveInteger" use="optional" />
 		<attribute name="originalAirdate" type="dateTime" use="optional" />
 		<attribute name="keywords" type="string" use="optional" />
-		<attribute name="season" type="string" use="optional" />
-		<attribute name="series" type="string" use="optional" />
+		<attribute name="season" type="IDREF" use="optional" />
+		<attribute name="series" type="IDREF" use="optional" />
 		<attribute name="halfStars" type="nonNegativeInteger" use="optional"
 			default="0" />
 		<attribute name="logoImage" type="IDREF" use="optional" />

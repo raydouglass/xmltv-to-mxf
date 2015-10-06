@@ -33,6 +33,7 @@ public class XmlTv {
 	private File xmlTvFile;
 
 	private Map<String, XmlTvChannel> channels = new HashMap<>();
+	private Collection<XmlTvProgram> programs = new ArrayList<>();
 	private XmlTvDatabase database;
 
 	private Collection<XmlTvProgram> tempPrograms = new ArrayList<>();
@@ -61,6 +62,7 @@ public class XmlTv {
 
 	public Consumer<XmlTvProgram> getProgramConsumer() {
 		return p -> {
+			programs.add(p);
 			tempPrograms.add(p);
 			if (tempPrograms.size() >= 10000) {
 				try {
@@ -75,6 +77,10 @@ public class XmlTv {
 
 	public Map<String, XmlTvChannel> getChannels() {
 		return channels;
+	}
+
+	public Collection<XmlTvProgram> getPrograms() {
+		return programs;
 	}
 
 	public XmlTv parse() throws XmlTvParseException {

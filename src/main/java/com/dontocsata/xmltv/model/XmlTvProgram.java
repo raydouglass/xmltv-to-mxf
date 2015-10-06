@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class XmlTvProgram {
 
@@ -16,7 +17,8 @@ public class XmlTvProgram {
 
 	private boolean previouslyShown;
 	private ZonedDateTime previouslyShownDate;
-	// The date the program or film was finished. This will probably be the same as the copyright date.
+	// The date the program or film was finished. This will probably be the same
+	// as the copyright date.
 	private LocalDate date;
 	private DDProgramId ddProgramId;
 	private XmlTvProgramId xmlTvProgramId;
@@ -25,6 +27,17 @@ public class XmlTvProgram {
 	private List<Credit> credits;
 	private List<String> categories;
 	private List<String> keywords;
+
+	private String uid;
+
+	public String getUid() {
+		if (ddProgramId != null) {
+			return ddProgramId.toString();
+		} else if (uid == null) {
+			uid = UUID.randomUUID().toString().replace("-", "");
+		}
+		return uid;
+	}
 
 	public String getChannelId() {
 		return channelId;

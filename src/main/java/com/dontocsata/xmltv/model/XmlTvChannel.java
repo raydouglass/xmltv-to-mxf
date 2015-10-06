@@ -10,6 +10,8 @@ public class XmlTvChannel {
 	private String icon;
 	private String url;
 
+	private int channelNumber = -1;
+
 	public String getId() {
 		return id;
 	}
@@ -39,6 +41,23 @@ public class XmlTvChannel {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	/**
+	 * Attempts to derive the channel number given the channel's display names
+	 */
+	public int getChannelNumber() {
+		if (channelNumber < 0) {
+			for (String name : displayNames) {
+				if (name.matches("\\d+")) {
+					channelNumber = Integer.parseInt(name);
+				}
+			}
+			if(channelNumber<0) {
+				throw new IllegalStateException("No acceptable channel number found for: " + this);
+			}
+		}
+		return channelNumber;
 	}
 
 	@Override
