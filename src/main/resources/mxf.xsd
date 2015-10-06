@@ -16,7 +16,7 @@
 				</element>
 				<element name="With" maxOccurs="unbounded">
 					<complexType>
-						<sequence>
+						<choice minOccurs="0" maxOccurs="unbounded">
 							<element name="Keywords">
 								<complexType>
 									<sequence>
@@ -89,7 +89,7 @@
 									</sequence>
 								</complexType>
 							</element>
-							<element name="ScheduleEntries" minOccurs="0" maxOccurs="unbounded">
+							<element name="ScheduleEntries">
 								<complexType>
 									<sequence>
 										<element name="ScheduleEntry" type="mxf:ScheduleEntry"
@@ -106,7 +106,7 @@
 									</sequence>
 								</complexType>
 							</element>
-						</sequence>
+						</choice>
 						<attribute name="provider" use="required" type="IDREF" />
 					</complexType>
 				</element>
@@ -134,7 +134,8 @@
 		<attribute name="name" type="string" use="required" />
 		<attribute name="version" type="string" use="required" />
 		<attribute name="publicKey" type="string" use="required" />
-		<attribute name="cultureInfo" type="string" />
+		<attribute name="cultureinfo" type="string" />
+		<attribute name="cultureInfo" type="string"/>
 	</complexType>
 
 	<complexType name="Provider">
@@ -205,6 +206,7 @@
 		<attribute name="id" type="ID" use="required" />
 		<attribute name="uid" type="string" use="optional" />
 		<attribute name="name" type="string" use="optional" />
+		<attribute name="language" type="string" use="optional" /> <!-- Not in spec, but in samples -->
 		<attribute name="primaryProvider" type="string" use="optional" />
 	</complexType>
 
@@ -225,7 +227,7 @@
 		<attribute name="episodeTitle" type="string" use="optional" />
 		<attribute name="description" type="string" use="optional" />
 		<attribute name="shortDescription" type="string" use="optional" />
-		<attribute name="language" type="string" use="required" />
+		<attribute name="language" type="string" use="optional" />
 		<attribute name="year" type="positiveInteger" use="optional" />
 		<attribute name="seasonNumber" type="positiveInteger" use="optional" />
 		<attribute name="episodeNumber" type="positiveInteger" use="optional" />
@@ -287,6 +289,7 @@
 		<attribute name="isHdtvSimulCast" type="boolean" use="optional" />
 		<attribute name="isDvs" type="boolean" use="optional" />
 		<attribute name="isStereo" type="boolean" use="optional" /> <!-- Not in spec, but in samples -->
+		<attribute name="isRepeat" type="boolean" use="optional" /> <!-- Not in spec, but in samples -->
 		<attribute name="part" type="nonNegativeInteger" use="optional" />
 		<attribute name="parts" type="nonNegativeInteger" use="optional" />
 	</complexType>
