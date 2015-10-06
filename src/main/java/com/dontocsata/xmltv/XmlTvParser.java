@@ -1,9 +1,12 @@
 package com.dontocsata.xmltv;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -13,11 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.transform.stream.StreamSource;
 
 import com.dontocsata.xmltv.model.DDProgramId;
 import com.dontocsata.xmltv.model.DDProgramIdType;
@@ -30,6 +35,7 @@ import com.dontocsata.xmltv.mxf.Lineup.Channels;
 import com.dontocsata.xmltv.mxf.MXF;
 import com.dontocsata.xmltv.mxf.MXF.With.ScheduleEntries;
 import com.dontocsata.xmltv.mxf.MxfGenerator;
+import com.dontocsata.xmltv.mxf.MxfValidator;
 import com.dontocsata.xmltv.mxf.Program;
 import com.dontocsata.xmltv.mxf.ScheduleEntry;
 import com.dontocsata.xmltv.mxf.Season;
@@ -46,9 +52,24 @@ public class XmlTvParser {
 
 		// File xmlTvFile = new File("test_xmltv.xml");
 		File xmlTvFile = new File("/Users/ray.douglass/Downloads/xmltv_2015_10_04.xml");
-		XmlTv xmlTv = new XmlTv(xmlTvFile, new File("database.db")).parse();
+		ProgressInputStream progressStream = new ProgressInputStream(xmlTvFile);
+		InputStream xmlTvStream = new BufferedInputStream(progressStream);
+		XmlTv xmlTv = new XmlTv(xmlTvStream);
 
-		System.out.println("Creating services");
+		DecimalFormat df = new DecimalFormat("0.00");
+		String text = "Reading XMLTV file: " + xmlTvFile + "...";
+		doInBackground(progressStream, () -> {
+			try {
+				xmlTv.parse();
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		} , d -> printUpdateProcess(text + df.format(d) + "%"));
+		printUpdateProcess(text + "100.00%");
+		progressStream.close();
+
+		printProgress("Creating services");
 		// Convert XmlTvChannel to Service
 		// XmlTvChannel ID=>Service
 		Map<String, Service> services = new TreeMap<>();
@@ -62,7 +83,7 @@ public class XmlTvParser {
 			// affiliates
 			services.put(c.getId(), service);
 		}
-		System.out.println("Creatring lineup");
+		printProgress("Creating lineup", true);
 		Lineup lineup = new Lineup();
 		lineup.setChannels(new Channels());
 		lineup.setId("l1");
@@ -79,7 +100,7 @@ public class XmlTvParser {
 
 		MxfGenerator generator = new MxfGenerator();
 
-		System.out.println("Generating basic MXF");
+		printProgress("Generating basic MXF", true);
 		MXF mxf = generator.createBasicMXF();
 		MXF.With with = mxf.getWith().get(0);
 		MXF.With.Lineups lineups = new MXF.With.Lineups();
@@ -90,7 +111,8 @@ public class XmlTvParser {
 		mxfServices.getService().addAll(services.values());
 		with.getKeywordsOrKeywordGroupsOrGuideImages().add(mxfServices);
 
-		System.out.println("Beginning program parsing");
+		printProgress("Beginning program parsing", true);
+		System.out.println();
 		int count = 0;
 		// Create Series & Programs
 		int seriesIdSequence = 1;
@@ -103,9 +125,10 @@ public class XmlTvParser {
 		Multimap<String, ProgramPair> channelProgramMap = Multimaps
 				.newSortedSetMultimap(new TreeMap<String, Collection<ProgramPair>>(), () -> new TreeSet<ProgramPair>(
 						(o1, o2) -> o1.xmlTvProgram.getStart().compareTo(o2.xmlTvProgram.getStart())));
+		int interval = xmlTv.getPrograms().size() / 100;
 		for (XmlTvProgram p : xmlTv.getPrograms()) {
-			if (++count % 25000 == 0) {
-				System.out.println("Completed " + count + " programs");
+			if (++count % interval == 0) {
+				printUpdateProcess("Parsed " + count + "/" + xmlTv.getPrograms().size() + " programs");
 			}
 			Program prog = idProgramMap.get(p.getUid());
 			if (prog == null) {
@@ -173,6 +196,8 @@ public class XmlTvParser {
 			ProgramPair pp = new ProgramPair(prog, p);
 			channelProgramMap.put(p.getChannelId(), pp);
 		}
+		printUpdateProcess("Parsed " + xmlTv.getPrograms().size() + "/" + xmlTv.getPrograms().size() + " programs");
+
 		MXF.With.SeriesInfos seriesInfos = new MXF.With.SeriesInfos();
 		seriesInfos.getSeriesInfo().addAll(series.values());
 		with.getKeywordsOrKeywordGroupsOrGuideImages().add(seriesInfos);
@@ -181,11 +206,12 @@ public class XmlTvParser {
 		with.getKeywordsOrKeywordGroupsOrGuideImages().add(mxfSeasons);
 
 		with.getKeywordsOrKeywordGroupsOrGuideImages().add(withPrograms);
-
-		System.out.println("Scheduling programs");
+		printProgress("Scheduling programs", true);
+		System.out.println();
 		count = 0;
 		for (XmlTvChannel c : xmlTv.getChannels().values()) {
-			System.out.println("Scheduling " + c.getId() + " (" + ++count + "/" + xmlTv.getChannels().size() + ")");
+			printUpdateProcess("Scheduling " + c.getDisplayNames().get(0) + " (" + ++count + "/"
+					+ xmlTv.getChannels().size() + ")");
 			String key = c.getId();
 			Collection<ProgramPair> programs = channelProgramMap.get(key);
 			ScheduleEntries entries = new ScheduleEntries();
@@ -212,10 +238,13 @@ public class XmlTvParser {
 			with.getKeywordsOrKeywordGroupsOrGuideImages().add(entries);
 		}
 
+		File mxfOutput = new File("mxf.xml");
+
+		printProgress("Writing MXF file");
 		JAXBContext jaxb = generator.getJaxbContext();
 		Marshaller marshaller = jaxb.createMarshaller();
 		// StringWriter sw = new StringWriter();
-		try (BufferedWriter out = new BufferedWriter(new FileWriter("mxf.xml"))) {
+		try (BufferedWriter out = new BufferedWriter(new FileWriter(mxfOutput))) {
 			marshaller.marshal(mxf, out);
 		}
 		// SAXBuilder sb = new SAXBuilder();
@@ -223,8 +252,61 @@ public class XmlTvParser {
 		//
 		// XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
 		// xmlOut.output(document, System.out);
+		System.out.println();
+		progressStream = new ProgressInputStream(mxfOutput);
+		InputStream mxfStream = new BufferedInputStream(progressStream);
 
-		// new MxfValidator().validate(document);
+		doInBackground(progressStream, () -> {
+			try {
+				new MxfValidator().validate(new StreamSource(mxfStream));
+			} catch (Exception e) {
+				System.err.println("Error in MXF: " + e.getMessage());
+				System.exit(1);
+			}
+		} , d -> printUpdateProcess("Validating MXF..." + df.format(d) + "%"));
+		printProgress("MXF is valid!");
+	}
+
+	private static int previousLength = -1;
+
+	private static void printUpdateProcess(String text) {
+		System.out.print(text);
+		if (text.length() < previousLength) {
+			for (int i = text.length(); i < previousLength; i++) {
+				System.out.print(' ');
+			}
+		}
+		previousLength = text.length();
+		System.out.print('\r');
+	}
+
+	private static void printProgress(String text) {
+		printProgress(text, true);
+	}
+
+	private static void printProgress(String text, boolean newLine) {
+		if (newLine) {
+			System.out.println();
+		}
+		System.out.print(text);
+	}
+
+	public static void doInBackground(ProgressInputStream progressStream, Runnable task,
+			Consumer<Double> progressCallback) {
+		Thread t = new Thread(task);
+		t.start();
+		long size = progressStream.getFileSize();
+		while (t.isAlive()) {
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// ignore
+			}
+			long current = progressStream.getCurrentPosition();
+			double progress = current / (double) size * 100;
+			progressCallback.accept(progress);
+		}
+		progressCallback.accept(1.0);
 	}
 
 	private static class ProgramPair {

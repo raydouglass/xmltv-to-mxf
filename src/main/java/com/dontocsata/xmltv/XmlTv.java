@@ -1,9 +1,8 @@
 package com.dontocsata.xmltv;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +29,7 @@ public class XmlTv {
 
 	private static final Logger log = LoggerFactory.getLogger(XmlTv.class);
 
-	private File xmlTvFile;
+	private InputStream xmlTvStream;
 
 	private Map<String, XmlTvChannel> channels = new HashMap<>();
 	private Collection<XmlTvProgram> programs = new ArrayList<>();
@@ -38,15 +37,12 @@ public class XmlTv {
 
 	private Collection<XmlTvProgram> tempPrograms = new ArrayList<>();
 
-	public XmlTv(File xmlTvFile) throws IOException {
-		this.xmlTvFile = xmlTvFile;
-		if (!this.xmlTvFile.exists()) {
-			throw new FileNotFoundException(this.xmlTvFile.toString());
-		}
+	public XmlTv(InputStream xmlTvStream) throws IOException {
+		this.xmlTvStream = xmlTvStream;
 	}
 
-	public XmlTv(File xmlTvFile, File dbFile) throws IOException, SQLException {
-		this(xmlTvFile);
+	public XmlTv(InputStream xmlTvStream, File dbFile) throws IOException, SQLException {
+		this(xmlTvStream);
 		database = new XmlTvDatabase(dbFile);
 	}
 
@@ -94,7 +90,7 @@ public class XmlTv {
 			SAXParser parser = spf.newSAXParser();
 			XMLReader xmlReader = parser.getXMLReader();
 			xmlReader.setContentHandler(new MainHandler(xmlReader, getChannelConsumer(), getProgramConsumer()));
-			xmlReader.parse(new InputSource(new FileInputStream(xmlTvFile)));
+			xmlReader.parse(new InputSource(xmlTvStream));
 			if (database != null) {
 				if (!tempPrograms.isEmpty()) {
 					database.write(tempPrograms);
