@@ -15,10 +15,10 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import com.dontocsata.xmltv.model.DDProgramId;
-import com.dontocsata.xmltv.model.Program;
+import com.dontocsata.xmltv.model.XmlTvProgram;
 import com.dontocsata.xmltv.model.XmlTvProgramId;
 
-public class ProgramHandler extends XmlTvHandler<Program> {
+public class ProgramHandler extends XmlTvHandler<XmlTvProgram> {
 
 	private static final Logger log = LoggerFactory.getLogger(ProgramHandler.class);
 
@@ -28,11 +28,11 @@ public class ProgramHandler extends XmlTvHandler<Program> {
 			DateTimeFormatter.ofPattern("yyyyMMddHHmm"), DateTimeFormatter.ofPattern("yyyyMMddHH"),
 			DateTimeFormatter.ofPattern("yyyyMMdd") };
 
-	private Program program;
+	private XmlTvProgram program;
 	private String cachedString;
 	private String tempString;
 
-	public ProgramHandler(XMLReader xmlReader, ContentHandler originalHandler, Consumer<Program> consumer) {
+	public ProgramHandler(XMLReader xmlReader, ContentHandler originalHandler, Consumer<XmlTvProgram> consumer) {
 		super(xmlReader, originalHandler, consumer);
 	}
 
@@ -95,7 +95,7 @@ public class ProgramHandler extends XmlTvHandler<Program> {
 
 	@Override
 	public void start(String uri, String localName, String qName, Attributes attributes) {
-		program = new Program();
+		program = new XmlTvProgram();
 		program.setChannelId(attributes.getValue("channel"));
 		program.setStart(parseZonedDateTime(attributes.getValue("start")));
 		program.setStop(parseZonedDateTime(attributes.getValue("stop")));

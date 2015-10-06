@@ -22,8 +22,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import com.dontocsata.xmltv.db.XmlTvDatabase;
-import com.dontocsata.xmltv.model.Channel;
-import com.dontocsata.xmltv.model.Program;
+import com.dontocsata.xmltv.model.XmlTvChannel;
+import com.dontocsata.xmltv.model.XmlTvProgram;
 import com.dontocsata.xmltv.parser.MainHandler;
 
 public class XmlTv {
@@ -32,10 +32,10 @@ public class XmlTv {
 
 	private File xmlTvFile;
 
-	private Map<String, Channel> channels = new HashMap<>();
+	private Map<String, XmlTvChannel> channels = new HashMap<>();
 	private XmlTvDatabase database;
 
-	private Collection<Program> tempPrograms = new ArrayList<>();
+	private Collection<XmlTvProgram> tempPrograms = new ArrayList<>();
 
 	public XmlTv(File xmlTvFile) throws IOException, SQLException {
 		this.xmlTvFile = xmlTvFile;
@@ -48,7 +48,7 @@ public class XmlTv {
 		database = new XmlTvDatabase(f);
 	}
 
-	public Consumer<Channel> getChannelConsumer() {
+	public Consumer<XmlTvChannel> getChannelConsumer() {
 		return c -> {
 			channels.put(c.getId(), c);
 			try {
@@ -59,7 +59,7 @@ public class XmlTv {
 		};
 	}
 
-	public Consumer<Program> getProgramConsumer() {
+	public Consumer<XmlTvProgram> getProgramConsumer() {
 		return p -> {
 			tempPrograms.add(p);
 			if (tempPrograms.size() >= 10000) {
@@ -73,7 +73,7 @@ public class XmlTv {
 		};
 	}
 
-	public Map<String, Channel> getChannels() {
+	public Map<String, XmlTvChannel> getChannels() {
 		return channels;
 	}
 

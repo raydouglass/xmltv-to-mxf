@@ -9,16 +9,16 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import com.dontocsata.xmltv.model.Channel;
+import com.dontocsata.xmltv.model.XmlTvChannel;
 
-public class ChannelHandler extends XmlTvHandler<Channel> {
+public class ChannelHandler extends XmlTvHandler<XmlTvChannel> {
 
 	private static final Logger log = LoggerFactory.getLogger(ChannelHandler.class);
 
-	private Channel channel;
+	private XmlTvChannel channel;
 	private boolean displayName;
 
-	public ChannelHandler(XMLReader xmlReader, ContentHandler originalHandler, Consumer<Channel> consumer) {
+	public ChannelHandler(XMLReader xmlReader, ContentHandler originalHandler, Consumer<XmlTvChannel> consumer) {
 		super(xmlReader, originalHandler, consumer);
 	}
 
@@ -56,7 +56,7 @@ public class ChannelHandler extends XmlTvHandler<Channel> {
 
 	@Override
 	public void start(String uri, String localName, String qName, Attributes attributes) {
-		channel = new Channel();
+		channel = new XmlTvChannel();
 		channel.setId(attributes.getValue("id"));
 	}
 

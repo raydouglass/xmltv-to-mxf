@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Program {
+public class XmlTvProgram {
 
 	private String channelId;
 	private ZonedDateTime start;

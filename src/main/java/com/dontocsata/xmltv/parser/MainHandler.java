@@ -7,8 +7,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.dontocsata.xmltv.model.Channel;
-import com.dontocsata.xmltv.model.Program;
+import com.dontocsata.xmltv.model.XmlTvChannel;
+import com.dontocsata.xmltv.model.XmlTvProgram;
 
 public class MainHandler extends DefaultHandler {
 
@@ -16,7 +16,7 @@ public class MainHandler extends DefaultHandler {
 	private ChannelHandler channelHandler;
 	private ProgramHandler programHandler;
 
-	public MainHandler(XMLReader xmlReader, Consumer<Channel> channelConsumer, Consumer<Program> programConsumer) {
+	public MainHandler(XMLReader xmlReader, Consumer<XmlTvChannel> channelConsumer, Consumer<XmlTvProgram> programConsumer) {
 		this.xmlReader = xmlReader;
 		channelHandler = new ChannelHandler(xmlReader, this, channelConsumer);
 		programHandler = new ProgramHandler(xmlReader, this, programConsumer);

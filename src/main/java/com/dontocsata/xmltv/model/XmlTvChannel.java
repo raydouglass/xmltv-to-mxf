@@ -3,7 +3,7 @@ package com.dontocsata.xmltv.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Channel {
+public class XmlTvChannel {
 
 	private String id;
 	private List<String> displayNames;

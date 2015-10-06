@@ -9,8 +9,8 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.dontocsata.xmltv.model.Channel;
-import com.dontocsata.xmltv.model.Program;
+import com.dontocsata.xmltv.model.XmlTvChannel;
+import com.dontocsata.xmltv.model.XmlTvProgram;
 
 public class XmlTvDatabase {
 
@@ -26,7 +26,7 @@ public class XmlTvDatabase {
 		}
 	}
 
-	public void write(Channel channel) throws SQLException {
+	public void write(XmlTvChannel channel) throws SQLException {
 		try (PreparedStatement stmt = conn
 				.prepareStatement("insert or replace into channel (id, displayNames, icon, url) VALUES (?,?,?,?)")) {
 			stmt.setString(1, channel.getId());
@@ -37,14 +37,14 @@ public class XmlTvDatabase {
 		}
 	}
 
-	public void write(Program... programs) throws SQLException {
+	public void write(XmlTvProgram... programs) throws SQLException {
 		write(Arrays.asList(programs));
 	}
 
-	public void write(Collection<Program> programs) throws SQLException {
+	public void write(Collection<XmlTvProgram> programs) throws SQLException {
 		try (PreparedStatement stmt = conn.prepareStatement(
 				"insert into program (channelId, title, subTitle, start, stop, description, previouslyShown, previouslyShownDate, date, ddProgramId, xmlTvProgramId, onScreenProgramId, credits, categories, keywords) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
-			for (Program program : programs) {
+			for (XmlTvProgram program : programs) {
 				stmt.setString(1, program.getChannelId());
 				stmt.setString(2, program.getTitle());
 				stmt.setString(3, program.getSubTitle());
