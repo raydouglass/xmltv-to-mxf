@@ -24,6 +24,9 @@ public class DDProgramId {
 	}
 
 	public static DDProgramId parse(String text) {
+		if ("SH00000001.0000".equals(text)) {
+			return null;
+		}
 		DDProgramId toRet = new DDProgramId();
 		String type = text.substring(0, 2);
 		toRet.type = DDProgramIdType.parse(type);
