@@ -20,7 +20,7 @@ public class DDProgramId {
 
 	@Override
 	public String toString() {
-		return "DDProgramId [type=" + type + ", seriesId=" + seriesId + ", episodeId=" + episodeId + "]";
+		return type.getCode() + seriesId + "." + episodeId;
 	}
 
 	public static DDProgramId parse(String text) {

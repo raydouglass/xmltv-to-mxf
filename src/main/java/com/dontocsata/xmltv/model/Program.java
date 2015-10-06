@@ -15,7 +15,7 @@ public class Program {
 	private String description;
 
 	private boolean previouslyShown;
-	private LocalDate previouslyShownDate;
+	private ZonedDateTime previouslyShownDate;
 	// The date the program or film was finished. This will probably be the same as the copyright date.
 	private LocalDate date;
 	private DDProgramId ddProgramId;
@@ -120,11 +120,11 @@ public class Program {
 		this.previouslyShown = previouslyShown;
 	}
 
-	public LocalDate getPreviouslyShownDate() {
+	public ZonedDateTime getPreviouslyShownDate() {
 		return previouslyShownDate;
 	}
 
-	public void setPreviouslyShownDate(LocalDate previouslyShownDate) {
+	public void setPreviouslyShownDate(ZonedDateTime previouslyShownDate) {
 		this.previouslyShownDate = previouslyShownDate;
 	}
 
@@ -134,6 +134,13 @@ public class Program {
 
 	public void setOnScreenProgramId(String onScreenProgramId) {
 		this.onScreenProgramId = onScreenProgramId;
+	}
+
+	public List<String> getKeywords() {
+		if (keywords == null) {
+			keywords = new ArrayList<>();
+		}
+		return keywords;
 	}
 
 	@Override

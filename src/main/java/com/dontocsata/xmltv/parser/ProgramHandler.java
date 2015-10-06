@@ -82,7 +82,7 @@ public class ProgramHandler extends XmlTvHandler<Program> {
 			case "previously-shown":
 				program.setPreviouslyShown(true);
 				if (tempString != null) {
-					program.setPreviouslyShownDate(parseLocalDate(tempString));
+					program.setPreviouslyShownDate(parseZonedDateTime(tempString));
 				}
 				break;
 		}
@@ -126,5 +126,4 @@ public class ProgramHandler extends XmlTvHandler<Program> {
 		}
 		throw new IllegalArgumentException("Unparseable: " + text);
 	}
-
 }

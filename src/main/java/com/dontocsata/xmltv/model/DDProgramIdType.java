@@ -1,6 +1,5 @@
 package com.dontocsata.xmltv.model;
 
-
 public enum DDProgramIdType {
 
 	MOVIE("MV"),
@@ -13,6 +12,10 @@ public enum DDProgramIdType {
 
 	DDProgramIdType(String code) {
 		this.code = code;
+	}
+
+	public String getCode() {
+		return code;
 	}
 
 	public static DDProgramIdType parse(String code) {
