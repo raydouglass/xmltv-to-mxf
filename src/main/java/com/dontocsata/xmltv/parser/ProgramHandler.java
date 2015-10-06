@@ -14,6 +14,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import com.dontocsata.xmltv.model.DDProgramId;
 import com.dontocsata.xmltv.model.Program;
 import com.dontocsata.xmltv.model.XmlTvProgramId;
 
@@ -71,6 +72,11 @@ public class ProgramHandler extends XmlTvHandler<Program> {
 				if ("xmltv_ns".equals(tempString)) {
 					XmlTvProgramId xmlTvProgramId = XmlTvProgramId.parse(cachedString);
 					program.setXmlTvProgramId(xmlTvProgramId);
+				} else if ("dd_progid".equals(tempString)) {
+					DDProgramId ddProgramId = DDProgramId.parse(cachedString);
+					program.setDdProgramId(ddProgramId);
+				} else if ("onscreen".equals(tempString)) {
+					program.setOnScreenProgramId(cachedString);
 				}
 				break;
 			case "previously-shown":
@@ -96,6 +102,10 @@ public class ProgramHandler extends XmlTvHandler<Program> {
 	}
 
 	private static LocalDate parseLocalDate(String text) {
+		if (text.length() == 4) {
+			// just a year
+			return LocalDate.of(Integer.parseInt(text), 1, 1);
+		}
 		for (DateTimeFormatter dtf : FORMATS) {
 			try {
 				return LocalDate.parse(text, dtf);

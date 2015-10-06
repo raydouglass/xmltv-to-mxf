@@ -1,9 +1,14 @@
 package com.dontocsata.xmltv.parser;
 
+import java.util.function.Consumer;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+
+import com.dontocsata.xmltv.model.Channel;
+import com.dontocsata.xmltv.model.Program;
 
 public class MainHandler extends DefaultHandler {
 
@@ -11,10 +16,10 @@ public class MainHandler extends DefaultHandler {
 	private ChannelHandler channelHandler;
 	private ProgramHandler programHandler;
 
-	public MainHandler(XMLReader xmlReader) {
+	public MainHandler(XMLReader xmlReader, Consumer<Channel> channelConsumer, Consumer<Program> programConsumer) {
 		this.xmlReader = xmlReader;
-		channelHandler = new ChannelHandler(xmlReader, this, c -> System.out.println(c));
-		programHandler = new ProgramHandler(xmlReader, this, p -> System.out.println(p));
+		channelHandler = new ChannelHandler(xmlReader, this, channelConsumer);
+		programHandler = new ProgramHandler(xmlReader, this, programConsumer);
 	}
 
 	@Override

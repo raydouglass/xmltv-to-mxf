@@ -20,6 +20,7 @@ public class Program {
 	private LocalDate date;
 	private DDProgramId ddProgramId;
 	private XmlTvProgramId xmlTvProgramId;
+	private String onScreenProgramId;
 
 	private List<Credit> credits;
 	private List<String> categories;
@@ -127,13 +128,21 @@ public class Program {
 		this.previouslyShownDate = previouslyShownDate;
 	}
 
+	public String getOnScreenProgramId() {
+		return onScreenProgramId;
+	}
+
+	public void setOnScreenProgramId(String onScreenProgramId) {
+		this.onScreenProgramId = onScreenProgramId;
+	}
+
 	@Override
 	public String toString() {
 		return "Program [channelId=" + channelId + ", start=" + start + ", stop=" + stop + ", title=" + title
 				+ ", subTitle=" + subTitle + ", description=" + description + ", previouslyShown=" + previouslyShown
 				+ ", previouslyShownDate=" + previouslyShownDate + ", date=" + date + ", ddProgramId=" + ddProgramId
-				+ ", xmlTvProgramId=" + xmlTvProgramId + ", credits=" + credits + ", categories=" + categories
-				+ ", keywords=" + keywords + "]";
+				+ ", xmlTvProgramId=" + xmlTvProgramId + ", onScreenProgramId=" + onScreenProgramId + ", credits="
+				+ credits + ", categories=" + categories + ", keywords=" + keywords + "]";
 	}
 
 }
