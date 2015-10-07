@@ -170,7 +170,7 @@
 		<attribute name="uid" use="required">
 			<simpleType>
 				<restriction base="string">
-					<pattern value="!Affiliate![\w_]+" />
+					<pattern value="!Affiliate![\w_\s]+" />
 				</restriction>
 			</simpleType>
 		</attribute>
@@ -181,7 +181,7 @@
 		<attribute name="uid" use="required">
 			<simpleType>
 				<restriction base="string">
-					<pattern value="!Channel!l[\w_]+!(-1|\d+)_\d+" />
+					<pattern value="!Channel![\w_]+!(-1|\d+)(_\d+)?" />
 				</restriction>
 			</simpleType>
 		</attribute>
@@ -252,7 +252,7 @@
 		<attribute name="uid" use="required">
 			<simpleType>
 				<restriction base="string">
-					<pattern value="!Person![\w_]+" />
+					<pattern value="!Person![\w_\s]+" />
 				</restriction>
 			</simpleType>
 		</attribute>

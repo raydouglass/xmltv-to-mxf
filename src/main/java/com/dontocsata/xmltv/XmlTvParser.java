@@ -82,8 +82,8 @@ public class XmlTvParser {
 			// call sign
 			for(String name:c.getDisplayNames()) {
 				String split[] = name.split(" ");
-				if(!split[0].matches("\\d+")) {
-					service.setCallSign(name);
+				if (split[0].matches("\\d+") && split.length > 1) {
+					service.setCallSign(split[1]);
 				}
 			}
 			// affiliates
@@ -93,6 +93,7 @@ public class XmlTvParser {
 		Lineup lineup = new Lineup();
 		lineup.setChannels(new Channels());
 		lineup.setId("l1");
+		lineup.setName("MainLineup");
 		lineup.setUid("!Lineup!" + lineup.getId());
 		lineup.setPrimaryProvider("!MCLineup!MainLineup");
 		for (XmlTvChannel c : xmlTv.getChannels().values()) {
@@ -100,7 +101,7 @@ public class XmlTvParser {
 			channel.setLineup(lineup.getId());
 			channel.setService(services.get(c.getId()).getId());
 			channel.setNumber(Integer.toString(c.getChannelNumber()));
-			channel.setUid("!Channel!" + lineup.getId() + "!" + channel.getNumber() + "_0");
+			channel.setUid("!Channel!" + lineup.getName() + "!" + channel.getNumber() + "_0");
 			lineup.getChannels().getChannel().add(channel);
 		}
 

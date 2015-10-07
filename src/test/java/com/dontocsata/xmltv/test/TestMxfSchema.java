@@ -24,7 +24,7 @@ public class TestMxfSchema {
 		Validator validator = schema.newValidator();
 
 		SAXSource source = new SAXSource(new NamespaceFilter(XMLReaderFactory.createXMLReader()),
-				new InputSource(new FileInputStream("mxf.xml")));
+				new InputSource(new FileInputStream("/Users/ray.douglass/Downloads/basic.xml")));
 		validator.validate(source);
 	}
 
