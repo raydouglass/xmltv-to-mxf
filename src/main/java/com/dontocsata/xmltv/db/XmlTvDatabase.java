@@ -22,7 +22,7 @@ public class XmlTvDatabase {
 			stmt.executeUpdate(
 					"create table if not exists channel(id text primary key, displayNames text, icon text, url text)");
 			stmt.executeUpdate(
-					"create table if not exists program (channelId text, title text, subTitle text, start text, stop text, description text, previouslyShown boolean, previouslyShownDate text, date text, ddProgramId text, xmlTvProgramId text, onScreenProgramId text, credits text, categories text, keywords text, videoAspect text, videoQuality text)");
+					"create table if not exists program (channelId text, title text, subTitle text, start text, stop text, description text, previouslyShown boolean, previouslyShownDate text, date text, ddProgramId text, xmlTvProgramId text, onScreenProgramId text, credits text, categories text, keywords text, videoAspect text, videoQuality text, audio text)");
 		}
 	}
 
@@ -43,7 +43,7 @@ public class XmlTvDatabase {
 
 	public void write(Collection<XmlTvProgram> programs) throws SQLException {
 		try (PreparedStatement stmt = conn.prepareStatement(
-				"insert into program (channelId, title, subTitle, start, stop, description, previouslyShown, previouslyShownDate, date, ddProgramId, xmlTvProgramId, onScreenProgramId, credits, categories, keywords, videoAspect, videoQuality) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+				"insert into program (channelId, title, subTitle, start, stop, description, previouslyShown, previouslyShownDate, date, ddProgramId, xmlTvProgramId, onScreenProgramId, credits, categories, keywords, videoAspect, videoQuality, audio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
 			for (XmlTvProgram program : programs) {
 				stmt.setString(1, program.getChannelId());
 				stmt.setString(2, program.getTitle());
@@ -62,6 +62,7 @@ public class XmlTvDatabase {
 				stmt.setString(15, program.getKeywords().toString());
 				stmt.setString(16, program.getVideoAspect());
 				stmt.setString(17, program.getVideoQuality());
+				stmt.setString(18, toString(program.getAudio()));
 				stmt.addBatch();
 			}
 			stmt.executeBatch();

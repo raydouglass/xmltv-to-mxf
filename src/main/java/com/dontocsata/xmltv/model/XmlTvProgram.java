@@ -31,6 +31,8 @@ public class XmlTvProgram {
 	private String videoAspect;
 	private String videoQuality;
 
+	private AudioType audio;
+
 	private String uid;
 
 	public String getUid() {
@@ -181,6 +183,24 @@ public class XmlTvProgram {
 		return videoQuality != null && "HDTV".equals(videoQuality);
 	}
 
+	public AudioType getAudio() {
+		return audio;
+	}
+
+	public void setAudio(AudioType audio) {
+		this.audio = audio;
+	}
+
+	public boolean isPremiere() {
+		return xmlTvProgramId != null && xmlTvProgramId.getEpisode() != null && xmlTvProgramId.getEpisode() == 0;
+	}
+
+	public boolean isFinale() {
+		return xmlTvProgramId != null && xmlTvProgramId.getEpisode() != null
+				&& xmlTvProgramId.getNumberOfEpisodes() != null
+				&& xmlTvProgramId.getEpisode() == xmlTvProgramId.getNumberOfEpisodes() - 1;
+	}
+
 	@Override
 	public String toString() {
 		return "XmlTvProgram [channelId=" + channelId + ", start=" + start + ", stop=" + stop + ", title=" + title
@@ -188,7 +208,7 @@ public class XmlTvProgram {
 				+ ", previouslyShownDate=" + previouslyShownDate + ", date=" + date + ", ddProgramId=" + ddProgramId
 				+ ", xmlTvProgramId=" + xmlTvProgramId + ", onScreenProgramId=" + onScreenProgramId + ", credits="
 				+ credits + ", categories=" + categories + ", keywords=" + keywords + ", videoAspect=" + videoAspect
-				+ ", videoQuality=" + videoQuality + "]";
+				+ ", videoQuality=" + videoQuality + ", audio=" + audio + ", uid=" + uid + "]";
 	}
 
 }

@@ -14,6 +14,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import com.dontocsata.xmltv.model.AudioType;
 import com.dontocsata.xmltv.model.DDProgramId;
 import com.dontocsata.xmltv.model.XmlTvProgram;
 import com.dontocsata.xmltv.model.XmlTvProgramId;
@@ -90,6 +91,10 @@ public class ProgramHandler extends XmlTvHandler<XmlTvProgram> {
 			break;
 		case "quality":
 			program.setVideoQuality(getString());
+			break;
+		case "stereo":
+			AudioType at = AudioType.parse(getString());
+			program.setAudio(at);
 			break;
 		}
 	}

@@ -24,6 +24,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.stream.StreamSource;
 
+import com.dontocsata.xmltv.model.AudioType;
 import com.dontocsata.xmltv.model.DDProgramId;
 import com.dontocsata.xmltv.model.DDProgramIdType;
 import com.dontocsata.xmltv.model.XmlTvChannel;
@@ -54,7 +55,7 @@ public class XmlTvParser {
 		File xmlTvFile = new File("/Users/ray.douglass/Downloads/xmltv_2015_10_04.xml");
 		ProgressInputStream progressStream = new ProgressInputStream(xmlTvFile);
 		InputStream xmlTvStream = new BufferedInputStream(progressStream);
-		XmlTv xmlTv = new XmlTv(xmlTvStream);
+		XmlTv xmlTv = new XmlTv(xmlTvStream, new File("database.db"));
 
 		DecimalFormat df = new DecimalFormat("0.00");
 		String text = "Reading XMLTV file: " + xmlTvFile + "...";
@@ -80,7 +81,7 @@ public class XmlTvParser {
 			// Need better name
 			service.setName(c.getDisplayNames().get(0));
 			// call sign
-			for(String name:c.getDisplayNames()) {
+			for (String name : c.getDisplayNames()) {
 				String split[] = name.split(" ");
 				if (split[0].matches("\\d+") && split.length > 1) {
 					service.setCallSign(split[1]);
@@ -248,6 +249,18 @@ public class XmlTvParser {
 				if (pp.xmlTvProgram.isHDTV()) {
 					entry.setIsHdtv(true);
 				}
+				if (pp.xmlTvProgram.getAudio() != null) {
+					entry.setAudioFormat(BigInteger.valueOf(pp.xmlTvProgram.getAudio().getMxfType()));
+					if (pp.xmlTvProgram.getAudio() == AudioType.STEREO) {
+						entry.setIsStereo(true);
+					}
+				}
+				if (pp.xmlTvProgram.isPremiere()) {
+					entry.setIsPremiere(true);
+				} else if (pp.xmlTvProgram.isFinale()) {
+					entry.setIsFinale(true);
+				}
+
 				entries.getScheduleEntry().add(entry);
 			}
 			with.getKeywordsOrKeywordGroupsOrGuideImages().add(entries);
