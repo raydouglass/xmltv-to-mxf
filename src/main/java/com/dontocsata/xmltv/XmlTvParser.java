@@ -49,9 +49,9 @@ public class XmlTvParser {
 	public static void main(String[] args) throws Exception {
 
 		DatatypeFactory dtf = DatatypeFactory.newInstance();
-
+		File mxfOutput = new File("/Users/ray.douglass/Downloads/mxf.xml");
 		// File xmlTvFile = new File("test_xmltv.xml");
-		File xmlTvFile = new File("/Users/ray/Downloads/xmltv_2015_10_04.xml");
+		File xmlTvFile = new File("/Users/ray.douglass/Downloads/xmltv_2015_10_04.xml");
 		ProgressInputStream progressStream = new ProgressInputStream(xmlTvFile);
 		InputStream xmlTvStream = new BufferedInputStream(progressStream);
 		XmlTv xmlTv = new XmlTv(xmlTvStream);
@@ -80,6 +80,12 @@ public class XmlTvParser {
 			// Need better name
 			service.setName(c.getDisplayNames().get(0));
 			// call sign
+			for(String name:c.getDisplayNames()) {
+				String split[] = name.split(" ");
+				if(!split[0].matches("\\d+")) {
+					service.setCallSign(name);
+				}
+			}
 			// affiliates
 			services.put(c.getId(), service);
 		}
@@ -94,7 +100,7 @@ public class XmlTvParser {
 			channel.setLineup(lineup.getId());
 			channel.setService(services.get(c.getId()).getId());
 			channel.setNumber(Integer.toString(c.getChannelNumber()));
-			channel.setUid("!Channel!" + lineup.getId() + "!" + channel.getNumber());
+			channel.setUid("!Channel!" + lineup.getId() + "!" + channel.getNumber() + "_0");
 			lineup.getChannels().getChannel().add(channel);
 		}
 
@@ -142,6 +148,9 @@ public class XmlTvParser {
 							si.setId("si" + seriesIdSequence++);
 							si.setUid("!Series!" + si.getId());
 							si.setTitle(p.getTitle());
+							si.setShortTitle(p.getTitle());
+							si.setDescription(p.getTitle());
+							si.setShortDescription(p.getTitle());
 							series.put(seriesId, si);
 						}
 						if (p.getXmlTvProgramId() != null) {
@@ -244,11 +253,10 @@ public class XmlTvParser {
 		}
 		with.getKeywordsOrKeywordGroupsOrGuideImages().add(lineups);
 
-		File mxfOutput = new File("/Users/ray/Downloads/mxf.xml");
-
 		printProgress("Writing MXF file");
 		JAXBContext jaxb = generator.getJaxbContext();
 		Marshaller marshaller = jaxb.createMarshaller();
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		// StringWriter sw = new StringWriter();
 		try (BufferedWriter out = new BufferedWriter(new FileWriter(mxfOutput))) {
 			marshaller.marshal(mxf, out);
@@ -271,6 +279,7 @@ public class XmlTvParser {
 			}
 		} , d -> printUpdateProcess("Validating MXF..." + df.format(d) + "%"));
 		printProgress("MXF is valid!");
+		printProgress(idProgramMap.size() + " unique programs");
 	}
 
 	private static int previousLength = -1;

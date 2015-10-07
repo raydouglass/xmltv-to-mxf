@@ -135,7 +135,7 @@
 		<attribute name="version" type="string" use="required" />
 		<attribute name="publicKey" type="string" use="required" />
 		<attribute name="cultureinfo" type="string" />
-		<attribute name="cultureInfo" type="string"/>
+		<attribute name="cultureInfo" type="string" />
 	</complexType>
 
 	<complexType name="Provider">
@@ -167,12 +167,24 @@
 
 	<complexType name="Affiliate">
 		<attribute name="name" type="string" use="optional" />
-		<attribute name="uid" type="string" use="optional" />
+		<attribute name="uid" use="required">
+			<simpleType>
+				<restriction base="string">
+					<pattern value="!Affiliate![\w_]+" />
+				</restriction>
+			</simpleType>
+		</attribute>
 		<attribute name="logoImage" type="IDREF" use="optional" />
 	</complexType>
 
 	<complexType name="Channel">
-		<attribute name="uid" type="string" use="required" />
+		<attribute name="uid" use="required">
+			<simpleType>
+				<restriction base="string">
+					<pattern value="!Channel!l[\w_]+!(-1|\d+)_\d+" />
+				</restriction>
+			</simpleType>
+		</attribute>
 		<attribute name="lineup" type="string" use="optional" />
 		<attribute name="service" type="string" use="optional" />
 		<attribute name="matchName" type="string" use="optional" />
@@ -189,7 +201,13 @@
 
 	<complexType name="KeywordGroup">
 		<attribute name="groupName" type="string" use="optional" />
-		<attribute name="uid" type="string" use="optional" />
+		<attribute name="uid" use="required">
+			<simpleType>
+				<restriction base="string">
+					<pattern value="!KeywordGroup![\w_]+" />
+				</restriction>
+			</simpleType>
+		</attribute>
 		<attribute name="keywords" type="string" use="optional" />
 	</complexType>
 
@@ -203,8 +221,20 @@
 				</complexType>
 			</element>
 		</sequence>
-		<attribute name="id" type="ID" use="required" />
-		<attribute name="uid" type="string" use="optional" />
+		<attribute name="id" use="required">
+			<simpleType>
+				<restriction base="ID">
+					<enumeration value="l1" /> <!-- Spec requires this ID to be 'l1' -->
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="uid" use="required">
+			<simpleType>
+				<restriction base="string">
+					<pattern value="!Lineup![\w_]+" />
+				</restriction>
+			</simpleType>
+		</attribute>
 		<attribute name="name" type="string" use="optional" />
 		<attribute name="language" type="string" use="optional" /> <!-- Not in spec, but in samples -->
 		<attribute name="primaryProvider" type="string" use="optional" />
@@ -212,8 +242,20 @@
 
 	<complexType name="Person">
 		<attribute name="id" type="ID" use="required" />
-		<attribute name="name" type="string" use="optional" />
-		<attribute name="uid" type="string" use="optional" />
+		<attribute name="name" use="optional">
+			<simpleType>
+				<restriction base="string">
+					<maxLength value="160" />
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="uid" use="required">
+			<simpleType>
+				<restriction base="string">
+					<pattern value="!Person![\w_]+" />
+				</restriction>
+			</simpleType>
+		</attribute>
 	</complexType>
 
 	<complexType name="Program">
@@ -222,15 +264,29 @@
 		</sequence>
 		<attribute name="id" type="nonNegativeInteger" use="required" /> <!-- This is a xs:ID, but MXF spec requires using an integer, which is not 
 			allowed as an ID -->
-		<attribute name="uid" type="string" use="optional" />
-		<attribute name="title" type="string" use="optional" />
-		<attribute name="episodeTitle" type="string" use="optional" />
-		<attribute name="description" type="string" use="optional" />
-		<attribute name="shortDescription" type="string" use="optional" />
+		<attribute name="uid" use="required">
+			<simpleType>
+				<restriction base="string">
+					<pattern value="!Program![\w_]+" />
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="title" type="mxf:string512" use="optional" />
+		<attribute name="episodeTitle" type="mxf:string512" use="optional" />
+		<attribute name="description" use="optional">
+			<simpleType>
+				<restriction base="string">
+					<maxLength value="2048" />
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="shortDescription" type="mxf:string512" use="optional" />
 		<attribute name="language" type="string" use="optional" />
 		<attribute name="year" type="positiveInteger" use="optional" />
-		<attribute name="seasonNumber" type="nonNegativeInteger" use="optional" />
-		<attribute name="episodeNumber" type="nonNegativeInteger" use="optional" />
+		<attribute name="seasonNumber" type="nonNegativeInteger"
+			use="optional" />
+		<attribute name="episodeNumber" type="nonNegativeInteger"
+			use="optional" />
 		<attribute name="originalAirdate" type="dateTime" use="optional" />
 		<attribute name="keywords" type="string" use="optional" />
 		<attribute name="season" type="IDREF" use="optional" />
@@ -238,7 +294,21 @@
 		<attribute name="halfStars" type="nonNegativeInteger" use="optional"
 			default="0" />
 		<attribute name="logoImage" type="IDREF" use="optional" />
-		<attribute name="mpaaRating" type="nonNegativeInteger" use="optional" />
+		<attribute name="mpaaRating" use="optional">
+			<simpleType>
+				<restriction base="nonNegativeInteger">
+					<enumeration value="0" /> <!-- Unknown -->
+					<enumeration value="1" /> <!-- G -->
+					<enumeration value="2" /> <!-- PG -->
+					<enumeration value="3" /> <!-- PG13 -->
+					<enumeration value="4" /> <!-- R -->
+					<enumeration value="5" /> <!-- NC17 -->
+					<enumeration value="6" /> <!-- X -->
+					<enumeration value="7" /> <!-- NR -->
+					<enumeration value="8" /> <!-- AO -->
+				</restriction>
+			</simpleType>
+		</attribute>
 		<attribute name="isMovie" type="boolean" use="optional" />
 		<attribute name="isMiniSeries" type="boolean" use="optional" />
 		<attribute name="isLimitedSeries" type="boolean" use="optional" />
@@ -270,8 +340,18 @@
 		<attribute name="duration" type="nonNegativeInteger" use="optional"
 			default="0" />
 		<attribute name="isCC" type="boolean" use="optional" />
-		<attribute name="audioFormat" type="nonNegativeInteger" use="optional"
-			default="0" />
+		<attribute name="audioFormat" use="optional">
+			<simpleType>
+				<restriction base="nonNegativeInteger">
+					<enumeration value="0" /> <!-- Not specified -->
+					<enumeration value="1" /> <!-- Mono -->
+					<enumeration value="2" /> <!-- Stero -->
+					<enumeration value="3" /> <!-- Dolby -->
+					<enumeration value="4" /> <!-- Dolby Digital -->
+					<enumeration value="5" /> <!-- THX -->
+				</restriction>
+			</simpleType>
+		</attribute>
 		<attribute name="isLive" type="boolean" use="optional" />
 		<attribute name="isLiveSports" type="boolean" use="optional" />
 		<attribute name="isTape" type="boolean" use="optional" />
@@ -296,7 +376,13 @@
 
 	<complexType name="Season">
 		<attribute name="id" type="ID" use="required" />
-		<attribute name="uid" type="string" use="optional" />
+		<attribute name="uid" use="required">
+			<simpleType>
+				<restriction base="string">
+					<pattern value="!Season![\w_]+" />
+				</restriction>
+			</simpleType>
+		</attribute>
 		<attribute name="series" type="IDREF" use="optional" />
 		<attribute name="title" type="string" use="optional" />
 		<attribute name="studio" type="string" use="optional" />
@@ -306,7 +392,13 @@
 
 	<complexType name="SeriesInfo">
 		<attribute name="id" type="ID" use="required" />
-		<attribute name="uid" type="string" use="optional" />
+		<attribute name="uid" use="required">
+			<simpleType>
+				<restriction base="string">
+					<pattern value="!Series![\w_]+" />
+				</restriction>
+			</simpleType>
+		</attribute>
 		<attribute name="title" type="string" use="optional" />
 		<attribute name="shortTitle" type="string" use="optional" />
 		<attribute name="description" type="string" use="optional" />
@@ -318,11 +410,23 @@
 
 	<complexType name="Service">
 		<attribute name="id" type="ID" use="required" />
-		<attribute name="uid" type="string" use="optional" />
+		<attribute name="uid" use="required">
+			<simpleType>
+				<restriction base="string">
+					<pattern value="!Service![\w_.]+" />
+				</restriction>
+			</simpleType>
+		</attribute>
 		<attribute name="name" type="string" use="optional" />
 		<attribute name="callSign" type="string" use="optional" />
 		<attribute name="affiliate" type="string" use="optional" />
 		<attribute name="logoImage" type="IDREF" use="optional" />
 	</complexType>
+
+	<simpleType name="string512">
+		<restriction base="string">
+			<maxLength value="512" />
+		</restriction>
+	</simpleType>
 
 </schema>

@@ -34,10 +34,12 @@ public class XmlTvProgram {
 	private String uid;
 
 	public String getUid() {
-		if (ddProgramId != null && ddProgramId.getType() == DDProgramIdType.EPISODE) {
-			return ddProgramId.toString();
-		} else if (uid == null) {
-			uid = UUID.randomUUID().toString().replace("-", "");
+		if (uid == null) {
+			if (ddProgramId != null && ddProgramId.getType() == DDProgramIdType.EPISODE) {
+				uid = ddProgramId.toString().replaceAll("[\\./]", "_");
+			} else if (uid == null) {
+				uid = UUID.randomUUID().toString().replaceAll("-", "");
+			}
 		}
 		return uid;
 	}
