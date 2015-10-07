@@ -51,7 +51,7 @@ public class XmlTvParser {
 		DatatypeFactory dtf = DatatypeFactory.newInstance();
 
 		// File xmlTvFile = new File("test_xmltv.xml");
-		File xmlTvFile = new File("/Users/ray.douglass/Downloads/xmltv_2015_10_04.xml");
+		File xmlTvFile = new File("/Users/ray/Downloads/xmltv_2015_10_04.xml");
 		ProgressInputStream progressStream = new ProgressInputStream(xmlTvFile);
 		InputStream xmlTvStream = new BufferedInputStream(progressStream);
 		XmlTv xmlTv = new XmlTv(xmlTvStream);
@@ -105,11 +105,9 @@ public class XmlTvParser {
 		MXF.With with = mxf.getWith().get(0);
 		MXF.With.Lineups lineups = new MXF.With.Lineups();
 		lineups.getLineup().add(lineup);
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(lineups);
 
 		MXF.With.Services mxfServices = new MXF.With.Services();
 		mxfServices.getService().addAll(services.values());
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(mxfServices);
 
 		printProgress("Beginning program parsing", true);
 		System.out.println();
@@ -200,12 +198,19 @@ public class XmlTvParser {
 
 		MXF.With.SeriesInfos seriesInfos = new MXF.With.SeriesInfos();
 		seriesInfos.getSeriesInfo().addAll(series.values());
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(seriesInfos);
 		MXF.With.Seasons mxfSeasons = new MXF.With.Seasons();
 		mxfSeasons.getSeason().addAll(seasons.values());
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(mxfSeasons);
 
+		with.getKeywordsOrKeywordGroupsOrGuideImages().add(new MXF.With.Keywords());
+		with.getKeywordsOrKeywordGroupsOrGuideImages().add(new MXF.With.KeywordGroups());
+		with.getKeywordsOrKeywordGroupsOrGuideImages().add(new MXF.With.GuideImages());
+		with.getKeywordsOrKeywordGroupsOrGuideImages().add(new MXF.With.People());
+		with.getKeywordsOrKeywordGroupsOrGuideImages().add(seriesInfos);
+		with.getKeywordsOrKeywordGroupsOrGuideImages().add(mxfSeasons);
 		with.getKeywordsOrKeywordGroupsOrGuideImages().add(withPrograms);
+		with.getKeywordsOrKeywordGroupsOrGuideImages().add(new MXF.With.Affiliates());
+		with.getKeywordsOrKeywordGroupsOrGuideImages().add(mxfServices);
+
 		printProgress("Scheduling programs", true);
 		System.out.println();
 		count = 0;
@@ -237,8 +242,9 @@ public class XmlTvParser {
 			}
 			with.getKeywordsOrKeywordGroupsOrGuideImages().add(entries);
 		}
+		with.getKeywordsOrKeywordGroupsOrGuideImages().add(lineups);
 
-		File mxfOutput = new File("mxf.xml");
+		File mxfOutput = new File("/Users/ray/Downloads/mxf.xml");
 
 		printProgress("Writing MXF file");
 		JAXBContext jaxb = generator.getJaxbContext();
@@ -306,7 +312,7 @@ public class XmlTvParser {
 			double progress = current / (double) size * 100;
 			progressCallback.accept(progress);
 		}
-		progressCallback.accept(1.0);
+		progressCallback.accept(100.0);
 	}
 
 	private static class ProgramPair {

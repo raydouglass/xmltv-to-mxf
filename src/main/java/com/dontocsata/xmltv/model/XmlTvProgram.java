@@ -34,7 +34,7 @@ public class XmlTvProgram {
 	private String uid;
 
 	public String getUid() {
-		if (ddProgramId != null) {
+		if (ddProgramId != null && ddProgramId.getType() == DDProgramIdType.EPISODE) {
 			return ddProgramId.toString();
 		} else if (uid == null) {
 			uid = UUID.randomUUID().toString().replace("-", "");
