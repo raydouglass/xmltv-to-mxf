@@ -87,9 +87,11 @@ public class XmlTvParser {
 					service.setCallSign(split[1]);
 				}
 			}
-			// affiliates
+			// TODO affiliates
 			services.put(c.getId(), service);
 		}
+
+		// Create the Lineup
 		printProgress("Creating lineup", true);
 		Lineup lineup = new Lineup();
 		lineup.setChannels(new Channels());
@@ -97,6 +99,7 @@ public class XmlTvParser {
 		lineup.setName("MainLineup");
 		lineup.setUid("!Lineup!" + lineup.getId());
 		lineup.setPrimaryProvider("!MCLineup!MainLineup");
+		// Convert each channel to MXF format
 		for (XmlTvChannel c : xmlTv.getChannels().values()) {
 			Channel channel = new Channel();
 			channel.setLineup(lineup.getId());
