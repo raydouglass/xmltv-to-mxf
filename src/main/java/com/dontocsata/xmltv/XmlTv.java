@@ -14,6 +14,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -31,14 +33,26 @@ public class XmlTv {
 
 	private InputStream xmlTvStream;
 
-	private Map<String, XmlTvChannel> channels = new HashMap<>();
-	private Collection<XmlTvProgram> programs = new ArrayList<>();
+	private Map<String, XmlTvChannel> channels;
+	private Collection<XmlTvProgram> programs;
 	private XmlTvDatabase database;
 
 	private Collection<XmlTvProgram> tempPrograms = new ArrayList<>();
 
-	public XmlTv(InputStream xmlTvStream) throws IOException {
+	public XmlTv(boolean lowMemory, InputStream xmlTvStream) {
 		this.xmlTvStream = xmlTvStream;
+		if (lowMemory) {
+			DB db = DBMaker.newTempFileDB().cacheSize(128).transactionDisable().mmapFileEnableIfSupported().make();
+			channels = db.createHashMap("channels").makeOrGet();
+			programs = db.createHashSet("programs").makeOrGet();
+		} else {
+			channels = new HashMap<>();
+			programs = new ArrayList<>();
+		}
+	}
+
+	public XmlTv(InputStream xmlTvStream) throws IOException {
+		this(false, xmlTvStream);
 	}
 
 	public XmlTv(InputStream xmlTvStream, File dbFile) throws IOException, SQLException {

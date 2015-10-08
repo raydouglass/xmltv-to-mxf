@@ -40,7 +40,7 @@ public class ProgramHandler extends XmlTvHandler<XmlTvProgram> {
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		tempString = null;
-		cachedString=null;
+		cachedString = null;
 		switch (qName) {
 		case "episode-num":
 			tempString = attributes.getValue("system");
@@ -135,9 +135,9 @@ public class ProgramHandler extends XmlTvHandler<XmlTvProgram> {
 	}
 
 	private static ZonedDateTime parseZonedDateTime(String text) {
-		for(DateTimeFormatter dtf:FORMATS) {
+		for (DateTimeFormatter dtf : FORMATS) {
 			try {
-				return ZonedDateTime.parse(text,dtf);
+				return ZonedDateTime.parse(text, dtf);
 			} catch (DateTimeParseException e) {
 				// no-op
 			}

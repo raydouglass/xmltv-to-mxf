@@ -1,7 +1,10 @@
 package com.dontocsata.xmltv.model;
 
-public class XmlTvProgramId {
+import java.io.Serializable;
 
+public class XmlTvProgramId implements Serializable{
+
+	private static final long serialVersionUID = -6383774362916730381L;
 	private Integer season;
 	private Integer numberOfSeasons;
 	private Integer episode;

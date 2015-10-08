@@ -1,0 +1,12 @@
+<configuration debug="false">
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>xmltvtomxf.log</file>
+		<encoder>
+			<pattern>%date %level [%thread] %C{16}:%line - %m%n</pattern>
+		</encoder>
+		<param name="Append" value="false"/>
+	</appender>
+	<root level="INFO">
+		<appender-ref ref="FILE" />
+	</root>
+</configuration>

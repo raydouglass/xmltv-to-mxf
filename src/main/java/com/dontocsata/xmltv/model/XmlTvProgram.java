@@ -1,12 +1,15 @@
 package com.dontocsata.xmltv.model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class XmlTvProgram {
+public class XmlTvProgram implements Serializable{
+
+	private static final long serialVersionUID = -2747662744200634182L;
 
 	private String channelId;
 	private ZonedDateTime start;

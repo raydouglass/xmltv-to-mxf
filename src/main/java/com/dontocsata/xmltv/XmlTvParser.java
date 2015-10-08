@@ -3,16 +3,20 @@ package com.dontocsata.xmltv;
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -23,6 +27,9 @@ import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.stream.StreamSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.dontocsata.xmltv.model.AudioType;
 import com.dontocsata.xmltv.model.DDProgramId;
@@ -45,17 +52,93 @@ import com.dontocsata.xmltv.mxf.Service;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.Argument;
+import net.sourceforge.argparse4j.inf.ArgumentAction;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
+
 public class XmlTvParser {
 
-	public static void main(String[] args) throws Exception {
+	private static final Logger log = LoggerFactory.getLogger(XmlTvParser.class);
 
+	public static void main(String[] args) throws Exception {
+		log.info("Starting with args={}", Arrays.deepToString(args));
+		ArgumentParser argParse = ArgumentParsers.newArgumentParser("XMLTVtoMXF", true)
+				.description("This converts an XMLTV file to the Microsoft Windows Media Center MXF XML format.");
+		argParse.addArgument("--db").nargs(1)
+		.help("Write the channel and program data to a SQLite database. This will overwrite the file");
+		argParse.addArgument("file").nargs(1).action(new ArgumentAction() {
+
+			@Override
+			public void run(ArgumentParser parser, Argument arg, Map<String, Object> attrs, String flag, Object value)
+					throws ArgumentParserException {
+				@SuppressWarnings("unchecked")
+				List<String> vals = (List<String>) value;
+				File f = new File(vals.get(0));
+				if (!f.exists()) {
+					throw new ArgumentParserException(new FileNotFoundException(value.toString()), parser);
+				}
+				attrs.put(arg.getDest(), f);
+			}
+
+			@Override
+			public void onAttach(Argument arg) {
+
+			}
+
+			@Override
+			public boolean consumeArgument() {
+				return true;
+			}
+		}).help("The XMLTV file to parse");
+		argParse.addArgument("-o", "--output").nargs(1).setDefault("mxf.xml").help("The MXF file output location");
+		argParse.addArgument("--debug").help("Run in debug most which produces detailed logs")
+		.action(new ArgumentAction() {
+
+			@Override
+			public void run(ArgumentParser parser, Argument arg, Map<String, Object> attrs, String flag,
+					Object value) throws ArgumentParserException {
+				((ch.qos.logback.classic.Logger) LoggerFactory
+						.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
+				.setLevel(ch.qos.logback.classic.Level.TRACE);
+			}
+
+			@Override
+			public void onAttach(Argument arg) {
+
+			}
+
+			@Override
+			public boolean consumeArgument() {
+				return false;
+			}
+		});
+		argParse.addArgument("--low-memory").dest("lowMemory").action(Arguments.storeTrue()).setDefault(Boolean.FALSE)
+		.help("Run in low memory mode");
+		Namespace ns = null;
+		try {
+			ns = argParse.parseArgs(args);
+		} catch (ArgumentParserException e) {
+			argParse.handleError(e);
+			System.exit(1);
+		}
 		DatatypeFactory dtf = DatatypeFactory.newInstance();
-		File mxfOutput = new File("/Users/ray.douglass/Downloads/mxf.xml");
-		// File xmlTvFile = new File("test_xmltv.xml");
-		File xmlTvFile = new File("/Users/ray.douglass/Downloads/xmltv_2015_10_04.xml");
+		File mxfOutput = new File(ns.getString("output"));
+		File xmlTvFile = ns.get("file");
+		log.info("XMLTV={}, MXF={}", xmlTvFile, mxfOutput);
 		ProgressInputStream progressStream = new ProgressInputStream(xmlTvFile);
 		InputStream xmlTvStream = new BufferedInputStream(progressStream);
-		XmlTv xmlTv = new XmlTv(xmlTvStream, new File("database.db"));
+		XmlTv xmlTv;
+		if (ns.get("db") != null) {
+			xmlTv = new XmlTv(xmlTvStream, new File(ns.getString("db")));
+		} else if (ns.getBoolean("lowMemory")) {
+			xmlTv = new XmlTv(true, xmlTvStream);
+		} else {
+			xmlTv = new XmlTv(xmlTvStream);
+		}
 
 		DecimalFormat df = new DecimalFormat("0.00");
 		String text = "Reading XMLTV file: " + xmlTvFile + "...";
@@ -63,7 +146,8 @@ public class XmlTvParser {
 			try {
 				xmlTv.parse();
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Error parsing", e);
+				System.err.println("Error parsing XMLTV: " + e.getMessage());
 				System.exit(1);
 			}
 		} , d -> printUpdateProcess(text + df.format(d) + "%"));
@@ -74,6 +158,7 @@ public class XmlTvParser {
 		// Convert XmlTvChannel to Service
 		// XmlTvChannel ID=>Service
 		Map<String, Service> services = new TreeMap<>();
+		log.info("{} channels", xmlTv.getChannels().size());
 		for (XmlTvChannel c : xmlTv.getChannels().values()) {
 			Service service = new Service();
 			service.setId("s" + (services.size() + 1));
@@ -88,6 +173,7 @@ public class XmlTvParser {
 				}
 			}
 			// TODO affiliates
+			log.debug("Created service: {}=>{}", c.getId(), service.getId());
 			services.put(c.getId(), service);
 		}
 
@@ -106,6 +192,7 @@ public class XmlTvParser {
 			channel.setService(services.get(c.getId()).getId());
 			channel.setNumber(Integer.toString(c.getChannelNumber()));
 			channel.setUid("!Channel!" + lineup.getName() + "!" + channel.getNumber() + "_0");
+			log.debug("Created channel: {}=>{}", c.getId(), channel.getUid());
 			lineup.getChannels().getChannel().add(channel);
 		}
 
@@ -127,10 +214,14 @@ public class XmlTvParser {
 		int seriesIdSequence = 1;
 		int seasonIdSequence = 1;
 		int programIdSequence = 1;
+		// dd prog id series ID=>SeriesInfo
 		Map<String, SeriesInfo> series = new TreeMap<>();
+		// dd prog id series ID_xmltvns season #=>Season
 		Map<String, Season> seasons = new TreeMap<>();
 		MXF.With.Programs withPrograms = new MXF.With.Programs();
+		// XmlTvProgram UID=>Program
 		Map<String, Program> idProgramMap = new HashMap<>();
+		// XmlTvChannel ID=>Program & XmlTvProgram
 		Multimap<String, ProgramPair> channelProgramMap = Multimaps
 				.newSortedSetMultimap(new TreeMap<String, Collection<ProgramPair>>(), () -> new TreeSet<ProgramPair>(
 						(o1, o2) -> o1.xmlTvProgram.getStart().compareTo(o2.xmlTvProgram.getStart())));
@@ -156,6 +247,7 @@ public class XmlTvParser {
 							si.setShortTitle(p.getTitle());
 							si.setDescription(p.getTitle());
 							si.setShortDescription(p.getTitle());
+							log.debug("Created series: {}, id={}", si.getTitle(), si.getId());
 							series.put(seriesId, si);
 						}
 						if (p.getXmlTvProgramId() != null) {
@@ -169,6 +261,8 @@ public class XmlTvParser {
 									season.setSeries(si);
 									season.setUid("!Season!" + season.getId());
 									season.setTitle(si.getTitle() + " Season " + xProdId.getSeason());
+									log.debug("Created season: {}, id={}, seriesId={}", season.getTitle(),
+											season.getId(), si.getId());
 									seasons.put(mapId, season);
 								}
 							}
@@ -204,6 +298,9 @@ public class XmlTvParser {
 
 				withPrograms.getProgram().add(prog);
 				idProgramMap.put(p.getUid(), prog);
+				log.debug("Unique program: {}=>{}", p.getUid(), prog.getId());
+			} else {
+				log.debug("Excountered non-unique program: {} ({}), index={}", prog.getTitle(), p.getUid(), count);
 			}
 			ProgramPair pp = new ProgramPair(prog, p);
 			channelProgramMap.put(p.getChannelId(), pp);
@@ -236,6 +333,7 @@ public class XmlTvParser {
 			ScheduleEntries entries = new ScheduleEntries();
 			entries.setService(services.get(key));
 			boolean first = true;
+			log.info("Scheduling {} with {} programs", c.getId(), programs.size());
 			for (ProgramPair pp : programs) {
 				ScheduleEntry entry = new ScheduleEntry();
 				entry.setProgram(pp.program.getId().toString());
@@ -277,12 +375,11 @@ public class XmlTvParser {
 		// StringWriter sw = new StringWriter();
 		try (BufferedWriter out = new BufferedWriter(new FileWriter(mxfOutput))) {
 			marshaller.marshal(mxf, out);
+		} catch (IOException ex) {
+			log.error("Error writing MXF", ex);
+			System.err.println("Error writing XMF: " + ex.getMessage());
+			System.exit(1);
 		}
-		// SAXBuilder sb = new SAXBuilder();
-		// Document document = sb.build(new StringReader(sw.toString()));
-		//
-		// XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
-		// xmlOut.output(document, System.out);
 		System.out.println();
 		progressStream = new ProgressInputStream(mxfOutput);
 		InputStream mxfStream = new BufferedInputStream(progressStream);
@@ -291,6 +388,7 @@ public class XmlTvParser {
 			try {
 				new MxfValidator().validate(new StreamSource(mxfStream));
 			} catch (Exception e) {
+				log.error("Error validating MXF", e);
 				System.err.println("Error in MXF: " + e.getMessage());
 				System.exit(1);
 			}
@@ -302,6 +400,7 @@ public class XmlTvParser {
 	private static int previousLength = -1;
 
 	private static void printUpdateProcess(String text) {
+		log.info(text);
 		System.out.print(text);
 		if (text.length() < previousLength) {
 			for (int i = text.length(); i < previousLength; i++) {
@@ -321,6 +420,8 @@ public class XmlTvParser {
 			System.out.println();
 		}
 		System.out.print(text);
+		log.info(text);
+		previousLength = -1;
 	}
 
 	public static void doInBackground(ProgressInputStream progressStream, Runnable task,

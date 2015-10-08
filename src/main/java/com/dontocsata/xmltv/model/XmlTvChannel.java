@@ -1,9 +1,11 @@
 package com.dontocsata.xmltv.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class XmlTvChannel {
+public class XmlTvChannel implements Serializable{
+	private static final long serialVersionUID = 207861002617575768L;
 
 	private String id;
 	private List<String> displayNames;
