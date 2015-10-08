@@ -395,6 +395,7 @@ public class XmlTvParser {
 		} , d -> printUpdateProcess("Validating MXF..." + df.format(d) + "%"));
 		printProgress("MXF is valid!");
 		printProgress(idProgramMap.size() + " unique programs");
+		System.out.println();
 	}
 
 	private static int previousLength = -1;
