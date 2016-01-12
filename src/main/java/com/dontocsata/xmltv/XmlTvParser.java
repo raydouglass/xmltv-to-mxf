@@ -68,7 +68,7 @@ public class XmlTvParser {
 		ArgumentParser argParse = ArgumentParsers.newArgumentParser("XMLTVtoMXF", true)
 				.description("This converts an XMLTV file to the Microsoft Windows Media Center MXF XML format.");
 		argParse.addArgument("--db").nargs(1)
-				.help("Write the channel and program data to a SQLite database. This will overwrite the file");
+		.help("Write the channel and program data to a SQLite database. This will overwrite the file");
 		argParse.addArgument("file").nargs(1).action(new ArgumentAction() {
 
 			@Override
@@ -95,28 +95,27 @@ public class XmlTvParser {
 		}).help("The XMLTV file to parse");
 		argParse.addArgument("-o", "--output").nargs(1).setDefault("mxf.xml").help("The MXF file output location");
 		argParse.addArgument("--debug").help("Run in debug most which produces detailed logs")
-				.action(new ArgumentAction() {
+		.action(new ArgumentAction() {
 
-					@Override
-					public void run(ArgumentParser parser, Argument arg, Map<String, Object> attrs, String flag,
-							Object value) throws ArgumentParserException {
-						((ch.qos.logback.classic.Logger) LoggerFactory
-								.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
-										.setLevel(ch.qos.logback.classic.Level.TRACE);
-					}
+			@Override
+			public void run(ArgumentParser parser, Argument arg, Map<String, Object> attrs, String flag,
+					Object value) throws ArgumentParserException {
+				((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME))
+				.setLevel(ch.qos.logback.classic.Level.TRACE);
+			}
 
-					@Override
-					public void onAttach(Argument arg) {
+			@Override
+			public void onAttach(Argument arg) {
 
-					}
+			}
 
-					@Override
-					public boolean consumeArgument() {
-						return false;
-					}
-				});
+			@Override
+			public boolean consumeArgument() {
+				return false;
+			}
+		});
 		argParse.addArgument("--low-memory").dest("lowMemory").action(Arguments.storeTrue()).setDefault(Boolean.FALSE)
-				.help("Run in low memory mode");
+		.help("Run in low memory mode");
 		Namespace ns = null;
 		try {
 			ns = argParse.parseArgs(args);
@@ -190,8 +189,11 @@ public class XmlTvParser {
 			channel.setLineup(lineup.getId());
 			channel.setService(storage.getService(UidGen.service(c)).getId());
 			channel.setNumber(Integer.toString(c.getChannelNumber()));
-			channel.setUid("!Channel!" + lineup.getName() + "!" + channel.getNumber() + "_0");
-			log.debug("Created channel: {}=>{}", c.getId(), channel.getUid());
+			if (c.getSubChannelNumber() >= 0) {
+				channel.setSubNumber(Integer.toString(c.getSubChannelNumber()));
+			}
+			int sub = c.getSubChannelNumber() > 0 ? c.getSubChannelNumber() : 0;
+			channel.setUid("!Channel!" + lineup.getName() + "!" + channel.getNumber() + "_" + sub);
 			lineup.getChannels().getChannel().add(channel);
 		}
 
@@ -228,11 +230,12 @@ public class XmlTvParser {
 				if (p.getDdProgramId() != null) {
 					DDProgramId progId = p.getDdProgramId();
 					if (progId.getType() == DDProgramIdType.EPISODE) {
-						String seriesId = "!Series!" + progId.getSeriesId();
-						if ((si = storage.getSeries(seriesId)) == null) {
+						String seriesId = progId.getSeriesId();
+						String uid = "!Series!" + seriesId;
+						if ((si = storage.getSeries(uid)) == null) {
 							si = new SeriesInfo();
 							si.setId("si" + seriesIdSequence++);
-							si.setUid(seriesId);
+							si.setUid(uid);
 							si.setTitle(p.getTitle());
 							si.setShortTitle(p.getTitle());
 							si.setDescription(p.getTitle());
@@ -244,17 +247,15 @@ public class XmlTvParser {
 							XmlTvProgramId xProdId = p.getXmlTvProgramId();
 							episodeNumber = xProdId.getEpisode();
 							if (xProdId.getSeason() != null) {
-								String uid = "!Season!" + progId.getSeriesId() + "_" + xProdId.getSeason();
-								if ((season = storage.getSeason(uid)) == null) {
+								String seasonUid = "!Season!" + progId.getSeriesId() + "_" + xProdId.getSeason();
+								if ((season = storage.getSeason(seasonUid)) == null) {
 									season = new Season();
 									season.setId("sn" + seasonIdSequence++);
 									season.setSeries(si);
-									season.setUid(uid);
+									season.setUid(seasonUid);
 									season.setTitle(si.getTitle() + " Season " + xProdId.getSeason());
-									log.debug("Created season: {}, id={}, seriesId={}",
-											season.getTitle(),
-											season.getId(),
-											si.getId());
+									log.debug("Created season: {}, id={}, seriesId={}", season.getTitle(),
+											season.getId(), si.getId());
 									storage.save(season);
 								}
 							}
@@ -436,6 +437,7 @@ public class XmlTvParser {
 	}
 
 	public static class ProgramPair implements Comparable<ProgramPair>, Serializable {
+
 		private static final long serialVersionUID = 5070712929071882294L;
 
 		private Program program;
@@ -455,6 +457,7 @@ public class XmlTvParser {
 	}
 
 	public static class UidGen {
+
 		public static String service(XmlTvChannel channel) {
 			return "!Service!" + channel.getId();
 		}

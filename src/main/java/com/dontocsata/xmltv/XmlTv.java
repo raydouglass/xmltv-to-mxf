@@ -2,7 +2,6 @@ package com.dontocsata.xmltv;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -42,30 +41,30 @@ public class XmlTv {
 	private Consumer<XmlTvChannel> getChannelConsumer() {
 		return c -> {
 			storage.save(c);
-			if (database != null) {
-				try {
-					database.write(c);
-				} catch (SQLException e) {
-					throw new RuntimeException(e);
-				}
-			}
+			// if (database != null) {
+			// try {
+			// database.write(c);
+			// } catch (SQLException e) {
+			// throw new RuntimeException(e);
+			// }
+			// }
 		};
 	}
 
 	private Consumer<XmlTvProgram> getProgramConsumer() {
 		return p -> {
 			storage.save(p);
-			if (database != null) {
-				tempPrograms.add(p);
-				if (tempPrograms.size() >= 10000) {
-					try {
-						database.write(tempPrograms);
-					} catch (SQLException e) {
-						throw new RuntimeException(e);
-					}
-					tempPrograms.clear();
-				}
-			}
+			// if (database != null) {
+			// tempPrograms.add(p);
+			// if (tempPrograms.size() >= 10000) {
+			// try {
+			// database.write(tempPrograms);
+			// } catch (SQLException e) {
+			// throw new RuntimeException(e);
+			// }
+			// tempPrograms.clear();
+			// }
+			// }
 		};
 	}
 
@@ -76,14 +75,14 @@ public class XmlTv {
 			XMLReader xmlReader = parser.getXMLReader();
 			xmlReader.setContentHandler(new MainHandler(xmlReader, getChannelConsumer(), getProgramConsumer()));
 			xmlReader.parse(new InputSource(xmlTvStream));
-			if (database != null) {
-				if (!tempPrograms.isEmpty()) {
-					database.write(tempPrograms);
-				}
-				database.createIndex();
-				database.close();
-			}
-		} catch (IOException | SQLException | SAXException | ParserConfigurationException e) {
+			// if (database != null) {
+			// if (!tempPrograms.isEmpty()) {
+			// database.write(tempPrograms);
+			// }
+			// database.createIndex();
+			// database.close();
+			// }
+		} catch (IOException | SAXException | ParserConfigurationException e) {
 			throw new XmlTvParseException(e);
 		}
 		return this;

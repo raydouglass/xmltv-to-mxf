@@ -47,6 +47,11 @@
 			<artifactId>mapdb</artifactId>
 			<version>1.0.8</version>
 		</dependency>
+		<dependency>
+			<groupId>com.j256.ormlite</groupId>
+			<artifactId>ormlite-jdbc</artifactId>
+			<version>4.48</version>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>

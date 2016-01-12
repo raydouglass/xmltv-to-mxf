@@ -1,89 +1,97 @@
 package com.dontocsata.xmltv.db;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
+import java.util.List;
 
-import com.dontocsata.xmltv.model.XmlTvChannel;
-import com.dontocsata.xmltv.model.XmlTvProgram;
+import com.dontocsata.xmltv.mxf.SeriesInfo;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.field.DataPersisterManager;
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseFieldConfig;
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.table.DatabaseTableConfig;
+import com.j256.ormlite.table.TableUtils;
 
 public class XmlTvDatabase {
 
-	private Connection conn;
+	private JdbcConnectionSource conn;
+	private Dao<SeriesInfo, String> seriesDao;
 
 	public XmlTvDatabase(File dbFile) throws SQLException {
-		conn = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
-		try (Statement stmt = conn.createStatement()) {
-			stmt.executeUpdate(
-					"create table if not exists channel(id text primary key, displayNames text, icon text, url text)");
-			stmt.executeUpdate(
-					"create table if not exists program (channelId text, title text, subTitle text, start text, stop text, description text, previouslyShown boolean, previouslyShownDate text, date text, ddProgramId text, xmlTvProgramId text, onScreenProgramId text, credits text, categories text, keywords text, videoAspect text, videoQuality text, audio text)");
+		String jdbcUrl = "jdbc:sqlite:" + dbFile.getAbsolutePath();
+		conn = new JdbcConnectionSource(jdbcUrl);
+		DataPersisterManager.registerDataPersisters(new XmlGregorianCalendarPersister());
+		seriesDao = createDao(seriesDbTable());
+	}
+
+	private enum DatabaseFieldFlag {
+		ID,
+		UNIQUE,
+		NON_NULL,
+		INDEXED;
+	}
+
+	private <T, ID> Dao<T, ID> createDao(DatabaseTableConfig<T> config) throws SQLException {
+		Dao<T, ID> dao = DaoManager.createDao(conn, config);
+		dao.setObjectCache(true);
+		TableUtils.createTableIfNotExists(conn, config);
+		return dao;
+	}
+
+	private DatabaseTableConfig<SeriesInfo> seriesDbTable() {
+		List<DatabaseFieldConfig> fields = new ArrayList<>();
+		// fields.add(create("identifier", DataType.STRING, EnumSet.of(DatabaseFieldFlag.ID)));
+		fields.add(create("uid", DataType.STRING, EnumSet.of(DatabaseFieldFlag.ID)));
+		fields.add(create("id", DataType.STRING, EnumSet.of(DatabaseFieldFlag.UNIQUE, DatabaseFieldFlag.NON_NULL)));
+		fields.add(create("title", DataType.STRING));
+		fields.add(create("shortTitle", DataType.STRING));
+		fields.add(create("description", DataType.STRING));
+		fields.add(create("shortDescription", DataType.STRING));
+		fields.add(create("startAirdate", DataType.STRING));
+		fields.add(create("endAirdate", DataType.STRING));
+		// TODO guide image
+		// fields.add(create("guideImage", DataType.STRING));
+		return new DatabaseTableConfig<>(SeriesInfo.class, fields);
+	}
+
+	private DatabaseFieldConfig create(String name, DataType dataType) {
+		return create(name, dataType, EnumSet.noneOf(DatabaseFieldFlag.class));
+	}
+
+	private DatabaseFieldConfig create(String name, DataType dataType, EnumSet<DatabaseFieldFlag> flags) {
+		DatabaseFieldConfig field = new DatabaseFieldConfig(name);
+		if (flags.contains(DatabaseFieldFlag.ID)) {
+			field.setId(true);
+			field.setCanBeNull(false);
 		}
-	}
-
-	public void write(XmlTvChannel channel) throws SQLException {
-		try (PreparedStatement stmt = conn
-				.prepareStatement("insert or replace into channel (id, displayNames, icon, url) VALUES (?,?,?,?)")) {
-			stmt.setString(1, channel.getId());
-			stmt.setString(2, channel.getDisplayNames().toString());
-			stmt.setString(3, channel.getIcon());
-			stmt.setString(4, channel.getUrl());
-			stmt.executeUpdate();
+		if (flags.contains(DatabaseFieldFlag.UNIQUE)) {
+			field.setUnique(true);
 		}
-	}
-
-	public void write(XmlTvProgram... programs) throws SQLException {
-		write(Arrays.asList(programs));
-	}
-
-	public void write(Collection<XmlTvProgram> programs) throws SQLException {
-		try (PreparedStatement stmt = conn.prepareStatement(
-				"insert into program (channelId, title, subTitle, start, stop, description, previouslyShown, previouslyShownDate, date, ddProgramId, xmlTvProgramId, onScreenProgramId, credits, categories, keywords, videoAspect, videoQuality, audio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
-			for (XmlTvProgram program : programs) {
-				stmt.setString(1, program.getChannelId());
-				stmt.setString(2, program.getTitle());
-				stmt.setString(3, program.getSubTitle());
-				stmt.setString(4, toString(program.getStart()));
-				stmt.setString(5, toString(program.getStop()));
-				stmt.setString(6, program.getDescription());
-				stmt.setBoolean(7, program.isPreviouslyShown());
-				stmt.setString(8, toString(program.getPreviouslyShownDate()));
-				stmt.setString(9, toString(program.getDate()));
-				stmt.setString(10, toString(program.getDdProgramId()));
-				stmt.setString(11, toString(program.getXmlTvProgramId()));
-				stmt.setString(12, toString(program.getOnScreenProgramId()));
-				stmt.setString(13, program.getCredits().toString());
-				stmt.setString(14, program.getCategories().toString());
-				stmt.setString(15, program.getKeywords().toString());
-				stmt.setString(16, program.getVideoAspect());
-				stmt.setString(17, program.getVideoQuality());
-				stmt.setString(18, toString(program.getAudio()));
-				stmt.addBatch();
-			}
-			stmt.executeBatch();
+		if (flags.contains(DatabaseFieldFlag.NON_NULL)) {
+			field.setCanBeNull(false);
+		} else {
+			field.setCanBeNull(true);
 		}
-	}
-
-	public void createIndex() throws SQLException {
-		try (Statement stmt = conn.createStatement()) {
-			stmt.executeUpdate("create index if not exists channelId_idx on program (channelId)");
-			stmt.executeUpdate("create index if not exists title_idx on program (title)");
-			stmt.executeUpdate("create index if not exists subTitle_idx on program (subTitle)");
-			stmt.executeUpdate("create index if not exists ddProgramId_idx on program (ddProgramId)");
-			stmt.executeUpdate("create index if not exists start_idx on program (start)");
+		if (flags.contains(DatabaseFieldFlag.INDEXED)) {
+			field.setIndex(true);
 		}
+		return field;
 	}
 
-	private String toString(Object o) {
-		return o == null ? null : o.toString();
+	public void save(SeriesInfo si) throws SQLException {
+		seriesDao.createOrUpdate(si);
 	}
 
-	public void close() throws SQLException {
-		conn.close();
+	public SeriesInfo getSeries(String uid) throws SQLException {
+		return seriesDao.queryForId(uid);
+	}
+
+	public Collection<SeriesInfo> getAllSeries() throws SQLException {
+		return seriesDao.queryForAll();
 	}
 }
