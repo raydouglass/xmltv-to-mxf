@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.time.Duration;
@@ -15,11 +16,8 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import javax.xml.bind.JAXBContext;
@@ -31,6 +29,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dontocsata.xmltv.db.DataStorage;
 import com.dontocsata.xmltv.model.AudioType;
 import com.dontocsata.xmltv.model.DDProgramId;
 import com.dontocsata.xmltv.model.DDProgramIdType;
@@ -49,8 +48,8 @@ import com.dontocsata.xmltv.mxf.ScheduleEntry;
 import com.dontocsata.xmltv.mxf.Season;
 import com.dontocsata.xmltv.mxf.SeriesInfo;
 import com.dontocsata.xmltv.mxf.Service;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ComparisonChain;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -69,7 +68,7 @@ public class XmlTvParser {
 		ArgumentParser argParse = ArgumentParsers.newArgumentParser("XMLTVtoMXF", true)
 				.description("This converts an XMLTV file to the Microsoft Windows Media Center MXF XML format.");
 		argParse.addArgument("--db").nargs(1)
-		.help("Write the channel and program data to a SQLite database. This will overwrite the file");
+				.help("Write the channel and program data to a SQLite database. This will overwrite the file");
 		argParse.addArgument("file").nargs(1).action(new ArgumentAction() {
 
 			@Override
@@ -96,28 +95,28 @@ public class XmlTvParser {
 		}).help("The XMLTV file to parse");
 		argParse.addArgument("-o", "--output").nargs(1).setDefault("mxf.xml").help("The MXF file output location");
 		argParse.addArgument("--debug").help("Run in debug most which produces detailed logs")
-		.action(new ArgumentAction() {
+				.action(new ArgumentAction() {
 
-			@Override
-			public void run(ArgumentParser parser, Argument arg, Map<String, Object> attrs, String flag,
-					Object value) throws ArgumentParserException {
-				((ch.qos.logback.classic.Logger) LoggerFactory
-						.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
-				.setLevel(ch.qos.logback.classic.Level.TRACE);
-			}
+					@Override
+					public void run(ArgumentParser parser, Argument arg, Map<String, Object> attrs, String flag,
+							Object value) throws ArgumentParserException {
+						((ch.qos.logback.classic.Logger) LoggerFactory
+								.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
+										.setLevel(ch.qos.logback.classic.Level.TRACE);
+					}
 
-			@Override
-			public void onAttach(Argument arg) {
+					@Override
+					public void onAttach(Argument arg) {
 
-			}
+					}
 
-			@Override
-			public boolean consumeArgument() {
-				return false;
-			}
-		});
+					@Override
+					public boolean consumeArgument() {
+						return false;
+					}
+				});
 		argParse.addArgument("--low-memory").dest("lowMemory").action(Arguments.storeTrue()).setDefault(Boolean.FALSE)
-		.help("Run in low memory mode");
+				.help("Run in low memory mode");
 		Namespace ns = null;
 		try {
 			ns = argParse.parseArgs(args);
@@ -131,14 +130,15 @@ public class XmlTvParser {
 		log.info("XMLTV={}, MXF={}", xmlTvFile, mxfOutput);
 		ProgressInputStream progressStream = new ProgressInputStream(xmlTvFile);
 		InputStream xmlTvStream = new BufferedInputStream(progressStream);
-		XmlTv xmlTv;
-		if (ns.get("db") != null) {
-			xmlTv = new XmlTv(xmlTvStream, new File(ns.getString("db")));
-		} else if (ns.getBoolean("lowMemory")) {
-			xmlTv = new XmlTv(true, xmlTvStream);
-		} else {
-			xmlTv = new XmlTv(xmlTvStream);
-		}
+		DataStorage storage = new DataStorage();
+		XmlTv xmlTv = new XmlTv(xmlTvStream, storage);
+		// if (ns.get("db") != null) {
+		// xmlTv = new XmlTv(xmlTvStream, new File(ns.getString("db")));
+		// } else if (ns.getBoolean("lowMemory")) {
+		// xmlTv = new XmlTv(true, xmlTvStream);
+		// } else {
+		// xmlTv = new XmlTv(xmlTvStream);
+		// }
 
 		DecimalFormat df = new DecimalFormat("0.00");
 		String text = "Reading XMLTV file: " + xmlTvFile + "...";
@@ -157,12 +157,11 @@ public class XmlTvParser {
 		printProgress("Creating services");
 		// Convert XmlTvChannel to Service
 		// XmlTvChannel ID=>Service
-		Map<String, Service> services = new TreeMap<>();
-		log.info("{} channels", xmlTv.getChannels().size());
-		for (XmlTvChannel c : xmlTv.getChannels().values()) {
+		log.info("{} channels", storage.getChannels().size());
+		for (XmlTvChannel c : storage.getChannels()) {
 			Service service = new Service();
-			service.setId("s" + (services.size() + 1));
-			service.setUid("!Service!" + c.getId());
+			service.setId("s" + c.getId());
+			service.setUid(UidGen.service(c));
 			// Need better name
 			service.setName(c.getDisplayNames().get(0));
 			// call sign
@@ -174,7 +173,7 @@ public class XmlTvParser {
 			}
 			// TODO affiliates
 			log.debug("Created service: {}=>{}", c.getId(), service.getId());
-			services.put(c.getId(), service);
+			storage.save(service);
 		}
 
 		// Create the Lineup
@@ -186,10 +185,10 @@ public class XmlTvParser {
 		lineup.setUid("!Lineup!" + lineup.getId());
 		lineup.setPrimaryProvider("!MCLineup!MainLineup");
 		// Convert each channel to MXF format
-		for (XmlTvChannel c : xmlTv.getChannels().values()) {
+		for (XmlTvChannel c : storage.getChannels()) {
 			Channel channel = new Channel();
 			channel.setLineup(lineup.getId());
-			channel.setService(services.get(c.getId()).getId());
+			channel.setService(storage.getService(UidGen.service(c)).getId());
 			channel.setNumber(Integer.toString(c.getChannelNumber()));
 			channel.setUid("!Channel!" + lineup.getName() + "!" + channel.getNumber() + "_0");
 			log.debug("Created channel: {}=>{}", c.getId(), channel.getUid());
@@ -205,7 +204,7 @@ public class XmlTvParser {
 		lineups.getLineup().add(lineup);
 
 		MXF.With.Services mxfServices = new MXF.With.Services();
-		mxfServices.getService().addAll(services.values());
+		mxfServices.getService().addAll(storage.getServices());
 
 		printProgress("Beginning program parsing", true);
 		System.out.println();
@@ -214,23 +213,14 @@ public class XmlTvParser {
 		int seriesIdSequence = 1;
 		int seasonIdSequence = 1;
 		int programIdSequence = 1;
-		// dd prog id series ID=>SeriesInfo
-		Map<String, SeriesInfo> series = new TreeMap<>();
-		// dd prog id series ID_xmltvns season #=>Season
-		Map<String, Season> seasons = new TreeMap<>();
 		MXF.With.Programs withPrograms = new MXF.With.Programs();
 		// XmlTvProgram UID=>Program
-		Map<String, Program> idProgramMap = new HashMap<>();
-		// XmlTvChannel ID=>Program & XmlTvProgram
-		Multimap<String, ProgramPair> channelProgramMap = Multimaps
-				.newSortedSetMultimap(new TreeMap<String, Collection<ProgramPair>>(), () -> new TreeSet<ProgramPair>(
-						(o1, o2) -> o1.xmlTvProgram.getStart().compareTo(o2.xmlTvProgram.getStart())));
-		int interval = xmlTv.getPrograms().size() / 100;
-		for (XmlTvProgram p : xmlTv.getPrograms()) {
+		int interval = storage.getXmlTvPrograms().size() / 100;
+		for (XmlTvProgram p : storage.getXmlTvPrograms()) {
 			if (++count % interval == 0) {
-				printUpdateProcess("Parsed " + count + "/" + xmlTv.getPrograms().size() + " programs");
+				printUpdateProcess("Parsed " + count + "/" + storage.getXmlTvPrograms().size() + " programs");
 			}
-			Program prog = idProgramMap.get(p.getUid());
+			Program prog = storage.getProgram(p.getUid());
 			if (prog == null) {
 				SeriesInfo si = null;
 				Season season = null;
@@ -238,32 +228,34 @@ public class XmlTvParser {
 				if (p.getDdProgramId() != null) {
 					DDProgramId progId = p.getDdProgramId();
 					if (progId.getType() == DDProgramIdType.EPISODE) {
-						String seriesId = progId.getSeriesId();
-						if ((si = series.get(seriesId)) == null) {
+						String seriesId = "!Series!" + progId.getSeriesId();
+						if ((si = storage.getSeries(seriesId)) == null) {
 							si = new SeriesInfo();
 							si.setId("si" + seriesIdSequence++);
-							si.setUid("!Series!" + si.getId());
+							si.setUid(seriesId);
 							si.setTitle(p.getTitle());
 							si.setShortTitle(p.getTitle());
 							si.setDescription(p.getTitle());
 							si.setShortDescription(p.getTitle());
 							log.debug("Created series: {}, id={}", si.getTitle(), si.getId());
-							series.put(seriesId, si);
+							storage.save(si);
 						}
 						if (p.getXmlTvProgramId() != null) {
 							XmlTvProgramId xProdId = p.getXmlTvProgramId();
 							episodeNumber = xProdId.getEpisode();
 							if (xProdId.getSeason() != null) {
-								String mapId = progId.getSeriesId() + "_" + xProdId.getSeason();
-								if ((season = seasons.get(mapId)) == null) {
+								String uid = "!Season!" + progId.getSeriesId() + "_" + xProdId.getSeason();
+								if ((season = storage.getSeason(uid)) == null) {
 									season = new Season();
 									season.setId("sn" + seasonIdSequence++);
 									season.setSeries(si);
-									season.setUid("!Season!" + season.getId());
+									season.setUid(uid);
 									season.setTitle(si.getTitle() + " Season " + xProdId.getSeason());
-									log.debug("Created season: {}, id={}, seriesId={}", season.getTitle(),
-											season.getId(), si.getId());
-									seasons.put(mapId, season);
+									log.debug("Created season: {}, id={}, seriesId={}",
+											season.getTitle(),
+											season.getId(),
+											si.getId());
+									storage.save(season);
 								}
 							}
 						}
@@ -297,41 +289,41 @@ public class XmlTvParser {
 				}
 
 				withPrograms.getProgram().add(prog);
-				idProgramMap.put(p.getUid(), prog);
+				storage.save(prog);
 				log.debug("Unique program: {}=>{}", p.getUid(), prog.getId());
 			} else {
 				log.debug("Excountered non-unique program: {} ({}), index={}", prog.getTitle(), p.getUid(), count);
 			}
 			ProgramPair pp = new ProgramPair(prog, p);
-			channelProgramMap.put(p.getChannelId(), pp);
+			storage.addProgramPair(p.getChannelId(), pp);
 		}
-		printUpdateProcess("Parsed " + xmlTv.getPrograms().size() + "/" + xmlTv.getPrograms().size() + " programs");
+		int size = storage.getXmlTvPrograms().size();
+		printUpdateProcess("Parsed " + size + "/" + size + " programs");
 
 		MXF.With.SeriesInfos seriesInfos = new MXF.With.SeriesInfos();
-		seriesInfos.getSeriesInfo().addAll(series.values());
+		seriesInfos.getSeriesInfo().addAll(storage.getSeries());
 		MXF.With.Seasons mxfSeasons = new MXF.With.Seasons();
-		mxfSeasons.getSeason().addAll(seasons.values());
+		mxfSeasons.getSeason().addAll(storage.getSeasons());
 
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(new MXF.With.Keywords());
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(new MXF.With.KeywordGroups());
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(new MXF.With.GuideImages());
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(new MXF.With.People());
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(seriesInfos);
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(mxfSeasons);
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(withPrograms);
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(new MXF.With.Affiliates());
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(mxfServices);
+		with.setKeywords(new MXF.With.Keywords());
+		with.setKeywordGroups(new MXF.With.KeywordGroups());
+		with.setGuideImages(new MXF.With.GuideImages());
+		with.setPeople(new MXF.With.People());
+		with.setSeriesInfos(seriesInfos);
+		with.setSeasons(mxfSeasons);
+		with.setPrograms(withPrograms);
+		with.setAffiliates(new MXF.With.Affiliates());
+		with.setServices(mxfServices);
 
 		printProgress("Scheduling programs", true);
 		System.out.println();
 		count = 0;
-		for (XmlTvChannel c : xmlTv.getChannels().values()) {
+		for (XmlTvChannel c : storage.getChannels()) {
 			printUpdateProcess("Scheduling " + c.getDisplayNames().get(0) + " (" + ++count + "/"
-					+ xmlTv.getChannels().size() + ")");
-			String key = c.getId();
-			Collection<ProgramPair> programs = channelProgramMap.get(key);
+					+ storage.getChannels().size() + ")");
+			Collection<ProgramPair> programs = storage.getPrograms(c.getId());
 			ScheduleEntries entries = new ScheduleEntries();
-			entries.setService(services.get(key));
+			entries.setService(storage.getService(UidGen.service(c)));
 			boolean first = true;
 			log.info("Scheduling {} with {} programs", c.getId(), programs.size());
 			for (ProgramPair pp : programs) {
@@ -364,9 +356,9 @@ public class XmlTvParser {
 
 				entries.getScheduleEntry().add(entry);
 			}
-			with.getKeywordsOrKeywordGroupsOrGuideImages().add(entries);
+			with.getScheduleEntries().add(entries);
 		}
-		with.getKeywordsOrKeywordGroupsOrGuideImages().add(lineups);
+		with.setLineups(lineups);
 
 		printProgress("Writing MXF file");
 		JAXBContext jaxb = generator.getJaxbContext();
@@ -394,7 +386,7 @@ public class XmlTvParser {
 			}
 		} , d -> printUpdateProcess("Validating MXF..." + df.format(d) + "%"));
 		printProgress("MXF is valid!");
-		printProgress(idProgramMap.size() + " unique programs");
+		printProgress(storage.getNumberOfPrograms() + " unique programs");
 		System.out.println();
 	}
 
@@ -443,14 +435,28 @@ public class XmlTvParser {
 		progressCallback.accept(100.0);
 	}
 
-	private static class ProgramPair {
+	public static class ProgramPair implements Comparable<ProgramPair>, Serializable {
+		private static final long serialVersionUID = 5070712929071882294L;
+
 		private Program program;
 		private XmlTvProgram xmlTvProgram;
 
 		public ProgramPair(Program program, XmlTvProgram xmlTvProgram) {
-			this.program = program;
-			this.xmlTvProgram = xmlTvProgram;
+			this.program = Preconditions.checkNotNull(program);
+			this.xmlTvProgram = Preconditions.checkNotNull(xmlTvProgram);
 		}
 
+		@Override
+		public int compareTo(ProgramPair o) {
+			return ComparisonChain.start().compare(xmlTvProgram.getStart(), o.xmlTvProgram.getStart())
+					.compare(program.getUid(), o.program.getUid()).result();
+		}
+
+	}
+
+	public static class UidGen {
+		public static String service(XmlTvChannel channel) {
+			return "!Service!" + channel.getId();
+		}
 	}
 }

@@ -16,7 +16,7 @@
 				</element>
 				<element name="With" maxOccurs="unbounded">
 					<complexType>
-						<choice minOccurs="0" maxOccurs="unbounded">
+						<sequence>
 							<element name="Keywords">
 								<complexType>
 									<sequence>
@@ -89,7 +89,7 @@
 									</sequence>
 								</complexType>
 							</element>
-							<element name="ScheduleEntries">
+							<element name="ScheduleEntries" minOccurs="1" maxOccurs="unbounded">
 								<complexType>
 									<sequence>
 										<element name="ScheduleEntry" type="mxf:ScheduleEntry"
@@ -106,7 +106,7 @@
 									</sequence>
 								</complexType>
 							</element>
-						</choice>
+						</sequence>
 						<attribute name="provider" use="required" type="IDREF" />
 					</complexType>
 				</element>
