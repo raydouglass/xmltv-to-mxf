@@ -23,7 +23,7 @@ Affiliate data, guide images (such as channel logos), people credits (actor/dire
   2. http://mc2xml.hosterbox.net/
 2. `java -jar xmltv-parser-<version>.jar xmltv.xml`
 3. Open Command Prompt and run: `C:\Windows\ehome\loadmxf -i mxf.xml`
-4. Remap channels
+4. Remap channels (You can also try the LineupSelector - http://www.thegreenbutton.tv/forums/viewtopic.php?p=97392#p97392)
   1. Open WMC
   2. Go to Settings->TV->Guide->Edit Channels
   3. Select a Channel
@@ -36,3 +36,8 @@ Affiliate data, guide images (such as channel logos), people credits (actor/dire
 	
 
 Note: it is likely that any previously scheduled recordings will NOT work after loading this data. This is because the IDs for Series and Programs are not the same as normal WMC EPG data. However, repeated loads of the same XMLTV data source using this program should result in consistent data. In other words, runs of this program on XMLTV data from the same source should have consistent series IDs and even program IDs if the source does.
+
+## Contact
+You can reach me at ray@raydouglass.com
+
+If you have a problem, please try running with the `--debug` flag then provide the xmltv file along with the log file (xmltvtomxf.log).

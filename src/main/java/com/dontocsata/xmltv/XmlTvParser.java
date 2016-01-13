@@ -52,7 +52,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ComparisonChain;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
-import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.Argument;
 import net.sourceforge.argparse4j.inf.ArgumentAction;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -67,8 +66,8 @@ public class XmlTvParser {
 		log.info("Starting with args={}", Arrays.deepToString(args));
 		ArgumentParser argParse = ArgumentParsers.newArgumentParser("XMLTVtoMXF", true)
 				.description("This converts an XMLTV file to the Microsoft Windows Media Center MXF XML format.");
-		argParse.addArgument("--db").nargs(1)
-		.help("Write the channel and program data to a SQLite database. This will overwrite the file");
+		// argParse.addArgument("--db").nargs(1).help("Write the channel and program data to a SQLite database. This
+		// will overwrite the file");
 		argParse.addArgument("file").nargs(1).action(new ArgumentAction() {
 
 			@Override
@@ -93,7 +92,7 @@ public class XmlTvParser {
 				return true;
 			}
 		}).help("The XMLTV file to parse");
-		argParse.addArgument("-o", "--output").nargs(1).setDefault("mxf.xml").help("The MXF file output location");
+		argParse.addArgument("-o", "--output").setDefault("mxf.xml").help("The MXF file output location");
 		argParse.addArgument("--debug").help("Run in debug most which produces detailed logs")
 		.action(new ArgumentAction() {
 
@@ -114,8 +113,8 @@ public class XmlTvParser {
 				return false;
 			}
 		});
-		argParse.addArgument("--low-memory").dest("lowMemory").action(Arguments.storeTrue()).setDefault(Boolean.FALSE)
-		.help("Run in low memory mode");
+		// argParse.addArgument("--low-memory").dest("lowMemory").action(Arguments.storeTrue()).setDefault(Boolean.FALSE).help("Run
+		// in low memory mode");
 		Namespace ns = null;
 		try {
 			ns = argParse.parseArgs(args);
