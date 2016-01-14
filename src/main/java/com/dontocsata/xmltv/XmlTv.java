@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with XMLTV-to-MXF. If not, see
  * <http://www.gnu.org/licenses/>.
  */
- package com.dontocsata.xmltv;
+package com.dontocsata.xmltv;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +28,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -89,6 +90,16 @@ public class XmlTv {
 			SAXParserFactory spf = SAXParserFactory.newInstance();
 			SAXParser parser = spf.newSAXParser();
 			XMLReader xmlReader = parser.getXMLReader();
+			xmlReader.setEntityResolver(new EntityResolver() {
+
+				@Override
+				public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+					if (systemId != null && systemId.endsWith("xmltv.dtd")) {
+						return new InputSource(getClass().getResourceAsStream("/xmltv.dtd"));
+					}
+					return null;
+				}
+			});
 			xmlReader.setContentHandler(new MainHandler(xmlReader, getChannelConsumer(), getProgramConsumer()));
 			xmlReader.parse(new InputSource(xmlTvStream));
 			// if (database != null) {
