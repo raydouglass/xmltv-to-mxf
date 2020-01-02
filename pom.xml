@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.dontocsata</groupId>
 	<artifactId>xmltv-to-mxf</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3-SNAPSHOT</version>
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/raydouglass/xmltv-to-mxf.git</developerConnection>
