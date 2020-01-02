@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 public class XmlTvChannel implements Serializable{
 	private static final long serialVersionUID = 207861002617575768L;
 
-	private static Pattern channelSubPattern = Pattern.compile("(\\d+)\\-(\\d+)");
+	private static Pattern channelSubPattern = Pattern.compile("(\\d+)[\\-\\.](\\d+)");
 
 	private String id;
 	private List<String> displayNames;
