@@ -97,8 +97,8 @@ public class ProgramHandler extends XmlTvHandler<XmlTvProgram> {
 			}
 			break;
 		case "previously-shown":
-			program.setPreviouslyShown(true);
 			if (tempString != null) {
+				program.setPreviouslyShown(true);
 				program.setPreviouslyShownDate(parseZonedDateTime(tempString));
 			}
 			break;
