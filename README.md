@@ -40,4 +40,4 @@ Note: it is likely that any previously scheduled recordings will NOT work after 
 ## Contact
 You can reach me at ray@raydouglass.com
 
-If you have a problem, please try running with the `--debug` flag then provide the xmltv file along with the log file (xmltvtomxf.log).
+If you have a problem, please try running with `java -Ddebug.logging=true -jar ...` then provide the xmltv file along with the log file (xmltvtomxf.log).

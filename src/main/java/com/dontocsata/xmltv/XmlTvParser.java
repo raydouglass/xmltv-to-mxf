@@ -79,6 +79,11 @@ public class XmlTvParser {
 	private static final Logger log = LoggerFactory.getLogger(XmlTvParser.class);
 
 	public static void main(String[] args) throws Exception {
+		if(Boolean.parseBoolean(System.getProperty("debug.logging"))){
+			((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME))
+					.setLevel(ch.qos.logback.classic.Level.TRACE);
+		}
+
 		log.info("Starting with args={}", Arrays.deepToString(args));
 		ArgumentParser argParse = ArgumentParsers.newArgumentParser("XMLTVtoMXF", true)
 				.description("This converts an XMLTV file to the Microsoft Windows Media Center MXF XML format.");
@@ -109,26 +114,7 @@ public class XmlTvParser {
 			}
 		}).help("The XMLTV file to parse");
 		argParse.addArgument("-o", "--output").setDefault("mxf.xml").help("The MXF file output location");
-		argParse.addArgument("--debug").help("Run in debug most which produces detailed logs")
-		.action(new ArgumentAction() {
 
-			@Override
-			public void run(ArgumentParser parser, Argument arg, Map<String, Object> attrs, String flag,
-					Object value) throws ArgumentParserException {
-				((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME))
-				.setLevel(ch.qos.logback.classic.Level.TRACE);
-			}
-
-			@Override
-			public void onAttach(Argument arg) {
-
-			}
-
-			@Override
-			public boolean consumeArgument() {
-				return false;
-			}
-		});
 		// argParse.addArgument("--low-memory").dest("lowMemory").action(Arguments.storeTrue()).setDefault(Boolean.FALSE).help("Run
 		// in low memory mode");
 		Namespace ns = null;

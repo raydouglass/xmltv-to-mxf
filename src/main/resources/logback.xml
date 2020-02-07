@@ -1,12 +1,27 @@
 <configuration debug="false">
-	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>xmltvtomxf.log</file>
-		<encoder>
-			<pattern>%date %level [%thread] %C{16}:%line - %m%n</pattern>
-		</encoder>
-		<param name="Append" value="false"/>
-	</appender>
-	<root level="INFO">
-		<appender-ref ref="FILE" />
-	</root>
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+    <if condition='Boolean.parseBoolean(property("debug.logging"))'>
+        <then>
+            <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+                <file>xmltvtomxf.log</file>
+                <encoder>
+                    <pattern>%date %level [%thread] %C{16}:%line - %m%n</pattern>
+                </encoder>
+                <param name="Append" value="false"/>
+            </appender>
+            <root level="OFF">
+                <appender-ref ref="FILE"/>
+            </root>
+        </then>
+        <else>
+            <appender name="CON" class="ch.qos.logback.core.ConsoleAppender">
+                <encoder>
+                    <pattern>%date %level - %m%n</pattern>
+                </encoder>
+            </appender>
+            <root level="INFO">
+                <appender-ref ref="CON"/>
+            </root>
+        </else>
+    </if>
 </configuration>
