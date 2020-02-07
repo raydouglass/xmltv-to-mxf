@@ -57,17 +57,17 @@ public class XmlTvProgramId implements Serializable{
 		String[] s = str.split("\\.");
 		if (s.length >= 1) {
 			Integer[] ints = parseInteger(s[0]);
-			toRet.season = ints[0];
+			toRet.season = ints[0] + 1;
 			toRet.numberOfSeasons = ints[1];
 		}
 		if (s.length >= 2) {
 			Integer[] ints = parseInteger(s[1]);
-			toRet.episode = ints[0];
+			toRet.episode = ints[0] + 1;
 			toRet.numberOfEpisodes = ints[1];
 		}
 		if (s.length >= 3) {
 			Integer[] ints = parseInteger(s[2]);
-			toRet.part = ints[0];
+			toRet.part = ints[0] + 1;
 			toRet.numberOfParts = ints[1];
 		}
 		return toRet;
@@ -99,7 +99,7 @@ public class XmlTvProgramId implements Serializable{
 
 	private static void buildToString(StringBuilder sb, Integer first, Integer second) {
 		if (first != null) {
-			sb.append(first);
+			sb.append(first - 1);
 			if (second != null) {
 				sb.append("/").append(second);
 			}
