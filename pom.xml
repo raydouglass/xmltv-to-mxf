@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.dontocsata</groupId>
 	<artifactId>xmltv-to-mxf</artifactId>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.5-FALC-SNAPSHOT</version>
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/raydouglass/xmltv-to-mxf.git</developerConnection>
@@ -10,6 +10,7 @@
   </scm>
 
 	<properties>
+      <!-- It doesn't work with 17, probably not least because xjc has moved to somewhere else' -->
 		<java.version>1.8</java.version>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.source>${java.version}</maven.compiler.source>

@@ -45,12 +45,11 @@ public class XmlTv {
 
 	private InputStream xmlTvStream;
 
-	private DataStorage storage;
-	private XmlTvDatabase database;
-
+	private XmlTVDataSorage storage;
+	
 	private Collection<XmlTvProgram> tempPrograms = new ArrayList<>();
 
-	public XmlTv(InputStream xmlTvStream, DataStorage storage) {
+	public XmlTv(InputStream xmlTvStream, XmlTVDataSorage storage) {
 		this.xmlTvStream = xmlTvStream;
 		this.storage = storage;
 	}
@@ -58,30 +57,12 @@ public class XmlTv {
 	private Consumer<XmlTvChannel> getChannelConsumer() {
 		return c -> {
 			storage.save(c);
-			// if (database != null) {
-			// try {
-			// database.write(c);
-			// } catch (SQLException e) {
-			// throw new RuntimeException(e);
-			// }
-			// }
 		};
 	}
 
 	private Consumer<XmlTvProgram> getProgramConsumer() {
 		return p -> {
 			storage.save(p);
-			// if (database != null) {
-			// tempPrograms.add(p);
-			// if (tempPrograms.size() >= 10000) {
-			// try {
-			// database.write(tempPrograms);
-			// } catch (SQLException e) {
-			// throw new RuntimeException(e);
-			// }
-			// tempPrograms.clear();
-			// }
-			// }
 		};
 	}
 
@@ -102,13 +83,6 @@ public class XmlTv {
 			});
 			xmlReader.setContentHandler(new MainHandler(xmlReader, getChannelConsumer(), getProgramConsumer()));
 			xmlReader.parse(new InputSource(xmlTvStream));
-			// if (database != null) {
-			// if (!tempPrograms.isEmpty()) {
-			// database.write(tempPrograms);
-			// }
-			// database.createIndex();
-			// database.close();
-			// }
 		} catch (IOException | SAXException | ParserConfigurationException e) {
 			throw new XmlTvParseException(e);
 		}

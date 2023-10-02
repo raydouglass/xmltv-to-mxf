@@ -24,6 +24,7 @@ import java.util.TreeSet;
 
 import org.mapdb.DB;
 
+import com.dontocsata.xmltv.XmlTVDataSorage;
 import com.dontocsata.xmltv.XmlTvParser.ProgramPair;
 import com.dontocsata.xmltv.model.XmlTvChannel;
 import com.dontocsata.xmltv.model.XmlTvProgram;
@@ -34,7 +35,7 @@ import com.dontocsata.xmltv.mxf.Service;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;;
 
-public class DataStorage {
+public class DataStorage implements XmlTVDataSorage {
 
 	private Map<String, XmlTvChannel> channels;
 	private Collection<XmlTvProgram> xmlTvPrograms;
