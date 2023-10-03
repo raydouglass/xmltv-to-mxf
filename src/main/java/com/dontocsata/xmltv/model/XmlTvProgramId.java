@@ -79,13 +79,24 @@ public class XmlTvProgramId implements Serializable{
 		}
 		int index = str.indexOf('/');
 		if (index != -1) {
-			return new Integer[] { Integer.parseInt(str.substring(0, index)),
-					Integer.parseInt(str.substring(index + 1)) };
+			return new Integer[] { atoi(str.substring(0, index)),
+					atoi(str.substring(index + 1)) };
 		} else {
-			return new Integer[] { Integer.parseInt(str), null };
+			return new Integer[] { atoi(str), null };
 		}
 	}
 
+	private static int atoi(String str) {
+	   int i = 0;
+	   try {
+	      Integer.parseInt(str.trim());
+	   }
+	   catch(Exception nex) {
+	      // Deliberately ignoring any parsing errors
+	   }
+	   return i;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
