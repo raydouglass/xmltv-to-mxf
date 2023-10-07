@@ -28,6 +28,7 @@ public class XmlTvProgramId implements Serializable{
 	private Integer part;
 	private Integer numberOfParts;
 
+	private String origEpisodeNum;
 	public Integer getSeason() {
 		return season;
 	}
@@ -53,21 +54,23 @@ public class XmlTvProgramId implements Serializable{
 	}
 
 	public static XmlTvProgramId parse(String str) {
+	   // TODO: This incorrectly parses ' . 0 . ' as having season 1
 		XmlTvProgramId toRet = new XmlTvProgramId();
+		toRet.origEpisodeNum = str; 
 		String[] s = str.split("\\.");
 		if (s.length >= 1) {
 			Integer[] ints = parseInteger(s[0]);
-			toRet.season = ints[0] + 1;
+			toRet.season = ints[0]!=null ? (ints[0] + 1) : null;
 			toRet.numberOfSeasons = ints[1];
 		}
 		if (s.length >= 2) {
 			Integer[] ints = parseInteger(s[1]);
-			toRet.episode = ints[0] + 1;
+			toRet.episode = ints[0]!=null ? (ints[0] + 1) : null;
 			toRet.numberOfEpisodes = ints[1];
 		}
 		if (s.length >= 3) {
 			Integer[] ints = parseInteger(s[2]);
-			toRet.part = ints[0] + 1;
+			toRet.part = ints[0]!=null ? (ints[0] + 1) : null;
 			toRet.numberOfParts = ints[1];
 		}
 		return toRet;
@@ -86,13 +89,21 @@ public class XmlTvProgramId implements Serializable{
 		}
 	}
 
-	private static int atoi(String str) {
-	   int i = 0;
-	   try {
-	      Integer.parseInt(str.trim());
-	   }
-	   catch(Exception nex) {
-	      // Deliberately ignoring any parsing errors
+	// Returns null if there is no non-space content
+	// Returns 0 if content present but not parseable as number
+	// Returns the number otherwise
+	private static Integer atoi(String str) {
+	   Integer i = null;
+	   String s = str.trim();
+	   if(s.length() > 0)
+	   {
+   	   try {
+   	      i = Integer.parseInt(str.trim());
+   	   }
+   	   catch(Exception nex) {
+   	     // Deliberately ignoring any parsing errors
+   	      i = 0;
+   	   }
 	   }
 	   return i;
 	}

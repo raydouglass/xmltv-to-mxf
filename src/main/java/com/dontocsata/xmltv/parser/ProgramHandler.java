@@ -56,7 +56,11 @@ public class ProgramHandler extends XmlTvHandler<XmlTvProgram> {
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		tempString = null;
-		cachedString = null;
+		
+		// This doesn't make sense (and causes NPE!). If there is a start element then it means the tag
+		// is present but empty, ie. an empty string. Thus it should be a new, empty buffer here.
+		// cachedString = null; 
+		cachedString = new StringBuilder();
 		switch (qName) {
 		case "episode-num":
 			tempString = attributes.getValue("system");
@@ -132,6 +136,11 @@ public class ProgramHandler extends XmlTvHandler<XmlTvProgram> {
 	}
 
 	private String getString() {
+	   if(cachedString == null)
+	   {
+	      log.error("getString: no cachedString for {}", program.toString());
+	      return "";
+	   }
 		return cachedString.toString();
 	}
 
